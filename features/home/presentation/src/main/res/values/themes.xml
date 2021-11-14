@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="Theme.Sonix" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+    </style>
+
+    <style name="Theme.Sonix.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Sonix.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>

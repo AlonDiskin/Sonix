@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="uri_settings">android-app://com.diskin.alon.sonix/settings</string>
+    <string name="app_name">Sonix</string>
+</resources>
