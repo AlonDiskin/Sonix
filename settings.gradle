@@ -8,3 +8,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Sonix"
 include ':app'
+include ':features:home:presentation'
+include ':features:common:presentation'
+include ':features:settings:presentation'
+include ':features:catalog:presentation'
