@@ -1,0 +1,16 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    api 'junit:junit:4.12'
+    api 'io.mockk:mockk:1.11.0'
+    api 'pl.pragmatists:JUnitParams:1.1.1'
+    api "com.google.truth:truth:1.0.1"
+}

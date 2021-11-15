@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_action_sort_date_added">Date Added</string>
+    <string name="title_action_sort_artist_name">Artist Name</string>
+    <string name="title_action_sort_descending">Descending</string>
+    <string name="title_action_sort_ascending">Ascending</string>
+    <string name="title_sort_tracks_menu">Sort tracks</string>
+    <string name="error_message_storage">files loading error!</string>
+    <string name="error_message_unknown">Unknown error!</string>
+    <string name="track_detail_duration_format">mm:ss</string>
+    <string name="tab_title_tracks">TRACKS</string>
+    <string name="tab_title_albums">ALBUMS</string>
+    <string name="tab_title_playlists">PLAYLISTS</string>
+    <string name="tab_title_artists">ARTISTS</string>
+    <string name="tab_title_favorites">FAVORITES</string>
+    <string name="dialog_permissions_message">In order to use app features,please allow the required storage permissions in app settings</string>
+    <string name="dialog_permissions_title">Grant Permissions</string>
+    <string name="dialog_permissions_positive_button">edit</string>
+    <string name="dialog_permissions_negative_button">exit</string>
+</resources>

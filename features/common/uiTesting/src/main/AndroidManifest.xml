@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.diskin.alon.sonix.common.uitesting">
+
+    <application>
+        <activity
+            android:name=".HiltTestActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
+            android:exported="false"/>
+    </application>
+</manifest>

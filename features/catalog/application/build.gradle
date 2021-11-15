@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    // Project modules
+    implementation project(':features:catalog:core')
+
+    // Javax
+    implementation "javax.inject:javax.inject:$javax_annotation_version"
+
+    // Rx
+    api "io.reactivex.rxjava2:rxjava:2.2.19"
+    api "io.reactivex.rxjava2:rxkotlin:2.4.0"
+
+    // Unit testing
+    implementation project(':features:common:unitTesting')
+}

@@ -33,18 +33,20 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(layout.toolbar)
 
         // Set nav controller and navigation ui
-        if (savedInstanceState == null) {
+        val navController = if (savedInstanceState == null) {
             val host = NavHostFragment.create(graphProvider.getAppGraph())
+
             supportFragmentManager.beginTransaction()
                 .replace(R.id.nav_host_fragment, host)
                 .setPrimaryNavigationFragment(host)
                 .commitNow()
-        }
-    }
+            host.navController
 
-    override fun onStart() {
-        super.onStart()
-        val navController = findNavController(R.id.nav_host_fragment)
+        } else {
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment)
+                .navController
+        }
+
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
