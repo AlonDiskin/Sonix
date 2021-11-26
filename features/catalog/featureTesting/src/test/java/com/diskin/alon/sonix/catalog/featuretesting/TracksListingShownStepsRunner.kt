@@ -34,8 +34,7 @@ class TracksListingShownStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(
         fun data(): Collection<Array<Any>> {
             val res = ArrayList<Array<Any>>()
             val scenarioConfigs = GreenCoffeeConfig()
-                .withFeatureFromAssets("feature/browse_audio_tracks.feature")
-                .withTags("@tracks-listed")
+                .withFeatureFromAssets("feature/updatable_sortable_tracks_listing_display.feature")
                 .scenarios()
 
             for (scenarioConfig in scenarioConfigs) {

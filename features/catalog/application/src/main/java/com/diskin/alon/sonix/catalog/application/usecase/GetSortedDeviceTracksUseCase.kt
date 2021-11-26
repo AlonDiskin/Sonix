@@ -8,7 +8,7 @@ import com.diskin.alon.sonix.catalog.application.util.*
 import io.reactivex.Observable
 import javax.inject.Inject
 
-class GetSortedTracksUseCase @Inject constructor(
+class GetSortedDeviceTracksUseCase @Inject constructor(
     private val tracksRepository: AudioTrackRepository,
     private val sortingStore: SortingStore,
     private val tracksMapper: TracksMapper

@@ -49,11 +49,12 @@ class SortTracksStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario
 
     override fun afterScenarioEnds(scenario: Scenario?, locale: Locale?) {
         super.afterScenarioEnds(scenario, locale)
+        DeviceUtil.clearSharedPrefs()
         DeviceUtil.deleteFilesFromDevice(
-            testSteps.testTracks.map { it.path }
+            testSteps.deviceTracks.map { it.path }
         )
         DeviceUtil.deleteFromMediaStore(
-            testSteps.testTracks.map { it.uri }
+            testSteps.deviceTracks.map { it.uri }
         )
     }
 }

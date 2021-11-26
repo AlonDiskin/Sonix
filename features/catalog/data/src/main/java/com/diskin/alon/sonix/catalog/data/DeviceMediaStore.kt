@@ -5,6 +5,7 @@ import android.database.ContentObserver
 import android.net.Uri
 import com.diskin.alon.sonix.catalog.application.util.AppResult
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
 /**
@@ -16,11 +17,11 @@ abstract class DeviceMediaStore(
     private val errorHandler: ContentResolverErrorHandler
 ) {
 
-    protected fun <T : Any> query(query: () -> (T)): Observable<com.diskin.alon.sonix.catalog.application.util.AppResult<T>> {
-        return Observable.create<com.diskin.alon.sonix.catalog.application.util.AppResult<T>> { emitter ->
+    protected fun <T : Any> query(query: () -> (T)): Observable<AppResult<T>> {
+        return Observable.create<AppResult<T>> { emitter ->
             val observer = object : ContentObserver(null) {
                 override fun onChange(selfChange: Boolean) {
-                    emitter.onNext(com.diskin.alon.sonix.catalog.application.util.AppResult.Success(query.invoke()))
+                    emitter.onNext(AppResult.Success(query.invoke()))
                 }
             }
 
@@ -35,10 +36,27 @@ abstract class DeviceMediaStore(
             emitter.setCancellable { contentResolver.unregisterContentObserver(observer) }
 
             // Perform query
-            emitter.onNext(com.diskin.alon.sonix.catalog.application.util.AppResult.Success(query.invoke()))
+            emitter.onNext(AppResult.Success(query.invoke()))
 
         }.subscribeOn(Schedulers.io())
-            .onErrorReturn { com.diskin.alon.sonix.catalog.application.util.AppResult.Error(errorHandler.handle(it)) }
-            .startWith(com.diskin.alon.sonix.catalog.application.util.AppResult.Loading())
+            .onErrorReturn { AppResult.Error(errorHandler.handle(it)) }
+            .startWith(AppResult.Loading())
+    }
+
+    fun delete(id: Int): Single<AppResult<Unit>> {
+        return Single.create<AppResult<Unit>> { emitter ->
+            contentResolver.delete(
+                Uri.parse(
+                    contentUri.toString()
+                        .plus("/$id")
+                ),
+                null,
+                null
+            )
+
+            emitter.onSuccess(AppResult.Success(Unit))
+
+        }.subscribeOn(Schedulers.io())
+            .onErrorReturn { AppResult.Error(errorHandler.handle(it)) }
     }
 }

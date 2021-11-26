@@ -23,7 +23,7 @@ import org.hamcrest.CoreMatchers.instanceOf
 
 class SortTracksSteps : GreenCoffeeSteps() {
 
-    lateinit var testTracks: List<DeviceUtil.DeviceTrack>
+    lateinit var deviceTracks: List<DeviceUtil.DeviceTrack>
 
     @Given("^User has not changed tracks sorting$")
     fun user_has_not_changed_tracks_sorting() {
@@ -32,7 +32,7 @@ class SortTracksSteps : GreenCoffeeSteps() {
 
     @And("^User has public audio tracks on his device$")
     fun user_has_public_audio_tracks_on_his_device() {
-        testTracks = DeviceUtil.copyAudioFilesToDevice(
+        deviceTracks = DeviceUtil.copyAudioFilesToDevice(
             listOf(
                 "assets/audio/Elvis Presley - If I Can Dream '68.mp3",
                 "assets/audio/The Beatles - Yesterday.mp3",
@@ -49,11 +49,11 @@ class SortTracksSteps : GreenCoffeeSteps() {
         DeviceUtil.launchAppFromHome()
     }
 
-    @Then("^App should show tracks catalog sorted by date in desc order$")
-    fun app_should_show_tracks_catalog_sorted_by_date_in_desc_order() {
+    @Then("^App should show tracks sorted by date in descending order$")
+    fun app_should_show_tracks_sorted_by_date_in_descending_order() {
         onView(withId(R.id.tracks))
-            .check(matches(isRecyclerViewItemsCount(testTracks.size)))
-        testTracks.reversed().forEachIndexed { index, track ->
+            .check(matches(isRecyclerViewItemsCount(deviceTracks.size)))
+        deviceTracks.reversed().forEachIndexed { index, track ->
             onView(withId(R.id.tracks))
                 .perform(scrollToPosition<AudioTrackViewHolder>(index))
 
@@ -94,8 +94,8 @@ class SortTracksSteps : GreenCoffeeSteps() {
     @Then("^App should show tracks catalog sorted by date in ascending order$")
     fun app_should_show_tracks_catalog_sorted_by_date_in_ascending_order() {
         onView(withId(R.id.tracks))
-            .check(matches(isRecyclerViewItemsCount(testTracks.size)))
-        testTracks.forEachIndexed { index, track ->
+            .check(matches(isRecyclerViewItemsCount(deviceTracks.size)))
+        deviceTracks.forEachIndexed { index, track ->
             onView(withId(R.id.tracks))
                 .perform(scrollToPosition<AudioTrackViewHolder>(index))
 

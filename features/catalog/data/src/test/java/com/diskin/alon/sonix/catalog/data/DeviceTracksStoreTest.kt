@@ -52,7 +52,10 @@ class DeviceTracksStoreTest {
 
         // Stub test cursor
         Shadows.shadowOf(ApplicationProvider.getApplicationContext<Context>().contentResolver)
-            .setCursor(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cursor)
+            .setCursor(
+                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
+                cursor
+            )
 
         tracksStore = DeviceTracksStore(
             ApplicationProvider.getApplicationContext<Context>().contentResolver,
@@ -83,7 +86,9 @@ class DeviceTracksStoreTest {
         assertThat(cursor.selection).isNull()
         assertThat(cursor.selectionArgs).isNull()
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+        assertThat(cursor.uri).isEqualTo(
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        )
 
         // When
         tracksStore.getAll(AudioTracksSorting.DateAdded(true)).test()
@@ -94,7 +99,9 @@ class DeviceTracksStoreTest {
         assertThat(cursor.selection).isNull()
         assertThat(cursor.selectionArgs).isNull()
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+        assertThat(cursor.uri).isEqualTo(
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        )
     }
 
     @Test
@@ -120,7 +127,9 @@ class DeviceTracksStoreTest {
         assertThat(cursor.selection).isNull()
         assertThat(cursor.selectionArgs).isNull()
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+        assertThat(cursor.uri).isEqualTo(
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        )
 
         // When
         tracksStore.getAll(AudioTracksSorting.ArtistName(true)).test()
@@ -131,6 +140,38 @@ class DeviceTracksStoreTest {
         assertThat(cursor.selection).isNull()
         assertThat(cursor.selectionArgs).isNull()
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+        assertThat(cursor.uri).isEqualTo(
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        )
+    }
+
+    @Test
+    fun getDeviceTrack_WhenQueried() {
+        // Given
+        val id = 1
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.MIME_TYPE
+        )
+        val selection = "${MediaStore.Audio.Media._ID} = ?"
+        val selectionArgs = arrayOf(id.toString())
+
+        // When
+        tracksStore.get(id).test()
+
+        // Then
+        assertThat(cursor.sortOrder).isNull()
+        assertThat(cursor.selection).isEqualTo(selection)
+        assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
+        assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
+        assertThat(cursor.uri).isEqualTo(
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        )
     }
 }

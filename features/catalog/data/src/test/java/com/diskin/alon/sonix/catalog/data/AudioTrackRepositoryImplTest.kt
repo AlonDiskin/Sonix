@@ -6,6 +6,7 @@ import com.diskin.alon.sonix.catalog.core.AudioTrack
 import io.mockk.every
 import io.mockk.mockk
 import io.reactivex.Observable
+import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 
@@ -26,7 +27,7 @@ class AudioTrackRepositoryImplTest {
     }
 
     @Test
-    fun getAllDeviceSortedTracks_WhenQueried() {
+    fun getAllSortedTracksFromDevice_WhenQueried() {
         // Given
         val sorting = AudioTracksSorting.DateAdded(true)
         val storeResult: AppResult.Success<List<AudioTrack>> = mockk()
@@ -35,6 +36,36 @@ class AudioTrackRepositoryImplTest {
 
         // When
         val observer = repository.getAll(sorting).test()
+
+        // Then
+        observer.assertValue(storeResult)
+    }
+
+    @Test
+    fun getTrackDetailFromDevice_WhenQueried() {
+        // Given
+        val id = 1
+        val storeResult = mockk<AppResult.Success<AudioTrack>>()
+
+        every { tracksStore.get(id) } returns Observable.just(storeResult)
+
+        // When
+        val observer = repository.get(id).test()
+
+        // Then
+        observer.assertValue(storeResult)
+    }
+
+    @Test
+    fun deleteTrackFromDevice_WhenCommanded() {
+        // Given
+        val id = 1
+        val storeResult = mockk<AppResult.Success<Unit>>()
+
+        every { tracksStore.delete(id) } returns Single.just(storeResult)
+
+        // When
+        val observer = repository.delete(id).test()
 
         // Then
         observer.assertValue(storeResult)

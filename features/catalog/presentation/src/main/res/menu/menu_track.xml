@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_track_detail"
+        android:title="@string/title_action_track_detail"/>
+
+    <item
+        android:id="@+id/action_share_track"
+        android:title="@string/title_action_share_track"/>
+
+    <item
+        android:id="@+id/action_add_playlist"
+        android:title="@string/title_action_add_playlist" />
+
+    <item
+        android:id="@+id/action_delete_track"
+        android:title="@string/title_action_delete_track" />
+</menu>

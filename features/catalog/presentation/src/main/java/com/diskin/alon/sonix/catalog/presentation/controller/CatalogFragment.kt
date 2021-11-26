@@ -14,13 +14,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.FragmentCatalogBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 
 class CatalogFragment(
@@ -28,9 +28,10 @@ class CatalogFragment(
 ) : Fragment() {
 
     private lateinit var layout: FragmentCatalogBinding
-    private val storagePermissionLauncher = createActivityResultLauncher(ActivityResultContracts.RequestPermission(),registry) {
-        it?.let { granted ->
-            when(granted) {
+    private val storagePermissionLauncher = createActivityResultLauncher(ActivityResultContracts.RequestMultiplePermissions(),registry) {
+        it?.let { grantResult ->
+            when(grantResult[Manifest.permission.READ_EXTERNAL_STORAGE]!! &&
+                    grantResult[Manifest.permission.WRITE_EXTERNAL_STORAGE]!!) {
                 true -> createCatalogFragment()
                 false -> showPermissionsDialog()
             }
@@ -53,6 +54,8 @@ class CatalogFragment(
     private fun checkPermissions() {
         // Check runtime permission for storage access since app feature all require this permission
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+            == PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
             == PackageManager.PERMISSION_GRANTED) {
             // Permission is granted, setup pager
             createCatalogFragment()
@@ -60,7 +63,12 @@ class CatalogFragment(
         } else {
             // Permission is not yet granted
             // Ask the user for the needed permission
-            storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            storagePermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            )
         }
     }
 
@@ -110,7 +118,7 @@ class CatalogFragment(
     }
 
     private fun showPermissionsDialog() {
-        AlertDialog.Builder(requireActivity())
+        MaterialAlertDialogBuilder(requireActivity())
             .setMessage(getString(R.string.dialog_permissions_message))
             .setTitle(getString(R.string.dialog_permissions_title))
             .setPositiveButton(getString(R.string.dialog_permissions_positive_button)) { _, _ ->

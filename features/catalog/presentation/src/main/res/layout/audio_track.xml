@@ -4,10 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="kotlin.jvm.functions.Function2"/>
+        <import type="android.view.View"/>
+        <import type="kotlin.Unit"/>
+        <import type="com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack"/>
 
         <variable
             name="track"
-            type="com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack" />
+            type="UiAudioTrack" />
+        <variable
+            name="optionsClickListener"
+            type="Function2&lt;UiAudioTrack,View,Unit>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
+            android:onClick="@{(v) -> optionsClickListener.invoke(track,v)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -57,7 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{track.artist}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textAppearance="?attr/textAppearanceBody2"
             android:maxLines="1"
             android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="@+id/track_menu"

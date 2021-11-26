@@ -1,15 +1,15 @@
-Feature: View track detail and delete it from device
+Feature: Engage catalog track options.
 
   User journey that exercise his usage of app functionality
-  to view a detail account of an existing audio track from user device,
-  and then delete it.
+  to engage in the different actions he can perform with catalog tracks.
 
   Scenario: User views track detail and delete it
     Given User has public audio tracks on his device
     When User launch app from device home
-    Then App should show all device tracks
-    When User select to see the detail of the first shown track
+    When User select to view the detail of the first catalog track
     Then App should show track detail to user
-    When User select to delete tracks
+    When Use select to share track
+    Then App should show device sharing menu
+    When User select to delete track
     Then App should delete track from device
     And Update tracks listing accordingly

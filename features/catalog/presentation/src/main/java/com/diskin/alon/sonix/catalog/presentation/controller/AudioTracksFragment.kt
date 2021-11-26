@@ -1,16 +1,26 @@
 package com.diskin.alon.sonix.catalog.presentation.controller
 
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.app.ShareCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
+import com.diskin.alon.sonix.catalog.application.util.AppError
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.FragmentAudioTracksBinding
+import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTracksViewModel
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.migration.OptionalInject
 
@@ -39,20 +49,14 @@ class AudioTracksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Set tracks adapter
-        val adapter = AudioTracksAdapter()
+        val adapter = AudioTracksAdapter(::handleTrackOptionsClick)
         layout.tracks.adapter = adapter
 
         // Observe view model tracks
-        viewModel.tracks.observe(viewLifecycleOwner) {
-            adapter.submitList(it) {
-                layout.tracks.scrollToPosition(0)
-            }
-        }
+        viewModel.tracks.observe(viewLifecycleOwner, adapter::submitList)
 
         // Observe view model track error state
-        viewModel.error.observe(viewLifecycleOwner) {
-            handleTracksError(it)
-        }
+        viewModel.error.observe(viewLifecycleOwner, this::handleTracksError)
 
         // Observe view model tracks loading state
         viewModel.update.observe(viewLifecycleOwner, ::handleTracksUpdate)
@@ -124,11 +128,11 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
-    private fun handleTracksError(appError: com.diskin.alon.sonix.catalog.application.util.AppError) {
+    private fun handleTracksError(appError: AppError) {
         when(appError) {
-            com.diskin.alon.sonix.catalog.application.util.AppError.DEVICE_STORAGE ->
+            AppError.DEVICE_STORAGE ->
                 Toast.makeText(requireContext(),getString(R.string.error_message_storage),Toast.LENGTH_LONG).show()
-            com.diskin.alon.sonix.catalog.application.util.AppError.UNKNOWN_ERROR ->
+            AppError.UNKNOWN_ERROR ->
                 Toast.makeText(requireContext(),getString(R.string.error_message_unknown),Toast.LENGTH_LONG).show()
         }
     }
@@ -138,5 +142,69 @@ class AudioTracksFragment : Fragment() {
             is ViewUpdateState.Loading -> layout.progressBar.visibility = View.VISIBLE
             is ViewUpdateState.EndLoading -> layout.progressBar.visibility = View.GONE
         }
+    }
+
+    private fun handleTrackOptionsClick(track: UiAudioTrack,view: View) {
+        PopupMenu(requireActivity(), view).apply {
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_track_detail -> {
+                        showTrackDetail(track.id)
+                        true
+                    }
+
+                    R.id.action_share_track -> {
+                        shareTrack(track.id)
+                        true
+                    }
+
+                    R.id.action_delete_track -> {
+                        deleteTrack(track.id)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+            inflate(R.menu.menu_track)
+            show()
+        }
+    }
+
+    private fun showTrackDetail(trackId: Int) {
+        val bundle = bundleOf(getString(R.string.arg_track_id) to trackId)
+        findNavController().navigate(R.id.audioTrackDetailDialog, bundle)
+    }
+
+    private fun shareTrack(trackId: Int) {
+        activity?.let {
+            val audioCollection =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Audio.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                }
+            val uri = Uri.parse(audioCollection.toString().plus("/$trackId"))
+
+            ShareCompat.IntentBuilder(it)
+                .setType(getString(R.string.mime_type_audio))
+                .setChooserTitle(getString(R.string.title_share_track))
+                .setStream(uri)
+                .startChooser()
+        }
+    }
+
+    private fun deleteTrack(trackId: Int) {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setMessage(getString(R.string.message_dialog_delete_track))
+            .setTitle(getString(R.string.title_dialog_delete_track))
+            .setPositiveButton(getString(R.string.title_dialog_positive_action)) { _, _ ->
+                viewModel.deleteTrack(trackId)
+            }
+            .setNegativeButton(getString(R.string.title_dialog_negative_action), null)
+            .create()
+            .show()
     }
 }

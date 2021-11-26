@@ -48,8 +48,8 @@ class CatalogFragmentTest {
 
     // Stub data
     private val testRegistry = object : ActivityResultRegistry() {
-        private var _permissionRequested = false
-        val permissionRequested get() = _permissionRequested
+        private var _permissionsRequested = false
+        val permissionsRequested get() = _permissionsRequested
         var permissionResult = true
         override fun <I : Any?, O : Any?> onLaunch(
             requestCode: Int,
@@ -57,11 +57,18 @@ class CatalogFragmentTest {
             input: I,
             options: ActivityOptionsCompat?
         ) {
+            _permissionsRequested = true
             when(contract) {
-                is ActivityResultContracts.RequestPermission -> {
-                    _permissionRequested = true
-                    if (input == Manifest.permission.READ_EXTERNAL_STORAGE) {
-                        dispatchResult(requestCode, permissionResult)
+                is ActivityResultContracts.RequestMultiplePermissions -> {
+                    if ((input as Array<String>)[0] == Manifest.permission.READ_EXTERNAL_STORAGE &&
+                        (input as Array<String>)[1] == Manifest.permission.WRITE_EXTERNAL_STORAGE) {
+                        dispatchResult(
+                            requestCode,
+                            mapOf(
+                                Pair(Manifest.permission.READ_EXTERNAL_STORAGE,permissionResult),
+                                Pair(Manifest.permission.WRITE_EXTERNAL_STORAGE,permissionResult)
+                            )
+                        )
                     }
                 }
             }
@@ -106,7 +113,7 @@ class CatalogFragmentTest {
         // Given
 
         // Then
-        assertThat(testRegistry.permissionRequested).isTrue()
+        assertThat(testRegistry.permissionsRequested).isTrue()
     }
 
     @Test

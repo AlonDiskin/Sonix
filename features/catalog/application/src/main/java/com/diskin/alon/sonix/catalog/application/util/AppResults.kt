@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.catalog.application.util
 
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 
@@ -18,6 +19,19 @@ sealed class AppResult<R : Any> {
 }
 
 fun <T : Any, R : Any> Observable<AppResult<T>>.mapAppResult(mapper: Function<T, R>): Observable<AppResult<R>> {
+    return this.map {
+        when(it) {
+            is AppResult.Success -> AppResult.Success(
+                mapper.apply(
+                    it.data
+                )
+            )
+            else -> it as AppResult<R>
+        }
+    }
+}
+
+fun <T : Any, R : Any> Single<AppResult<T>>.mapAppResult(mapper: Function<T, R>): Single<AppResult<R>> {
     return this.map {
         when(it) {
             is AppResult.Success -> AppResult.Success(

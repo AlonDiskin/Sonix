@@ -34,8 +34,7 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         fun data(): Collection<Array<Any>> {
             val res = ArrayList<Array<Any>>()
             val scenarioConfigs = GreenCoffeeConfig()
-                .withFeatureFromAssets("feature/browse_audio_tracks.feature")
-                .withTags("@selected-sorting-persisted")
+                .withFeatureFromAssets("feature/selected_sorting_persistence.feature")
                 .scenarios()
 
             for (scenarioConfig in scenarioConfigs) {

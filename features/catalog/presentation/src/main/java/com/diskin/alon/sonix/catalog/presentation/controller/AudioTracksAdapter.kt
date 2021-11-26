@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.catalog.presentation.controller
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -12,6 +13,7 @@ import com.diskin.alon.sonix.catalog.presentation.databinding.AudioTrackBinding
  * [UiAudioTrack]s adapter.
  */
 class AudioTracksAdapter(
+    private val optionsMenuClickListener: (UiAudioTrack,View) -> (Unit)
     ) : ListAdapter<UiAudioTrack, AudioTracksAdapter.AudioTrackViewHolder>(
     DIFF_CALLBACK
 ){
@@ -34,7 +36,7 @@ class AudioTracksAdapter(
             parent,
             false)
 
-        return AudioTrackViewHolder(binding)
+        return AudioTrackViewHolder(binding,optionsMenuClickListener)
     }
 
     override fun onBindViewHolder(holder: AudioTrackViewHolder, position: Int) {
@@ -42,8 +44,13 @@ class AudioTracksAdapter(
     }
 
     class AudioTrackViewHolder(
-        private val binding: AudioTrackBinding
+        private val binding: AudioTrackBinding,
+        optionsMenuClickListener: (UiAudioTrack,View) -> (Unit)
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.optionsClickListener = optionsMenuClickListener
+        }
 
         fun bind(track: UiAudioTrack) {
             binding.track = track

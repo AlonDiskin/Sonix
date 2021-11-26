@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.StyleRes
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
 import androidx.test.core.app.ActivityScenario
@@ -45,5 +46,18 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
             .commitNow()
 
         fragment.action()
+    }
+}
+
+inline fun <reified T : DialogFragment> launchDialogInHiltContainer(
+    dialogArgs: Bundle? = null,
+    crossinline dialogFactory: () -> (DialogFragment)
+): ActivityScenario<HiltTestActivity> {
+    return ActivityScenario.launch(HiltTestActivity::class.java).onActivity { activity ->
+        val dialog = dialogFactory.invoke()
+        val tag = dialog.javaClass.name
+
+        dialog.arguments = dialogArgs
+        dialog.show(activity.supportFragmentManager, tag)
     }
 }

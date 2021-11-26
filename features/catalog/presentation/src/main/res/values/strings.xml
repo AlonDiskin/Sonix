@@ -5,7 +5,7 @@
     <string name="title_action_sort_descending">Descending</string>
     <string name="title_action_sort_ascending">Ascending</string>
     <string name="title_sort_tracks_menu">Sort tracks</string>
-    <string name="error_message_storage">files loading error!</string>
+    <string name="error_message_storage">device storage error!</string>
     <string name="error_message_unknown">Unknown error!</string>
     <string name="track_detail_duration_format">mm:ss</string>
     <string name="tab_title_tracks">TRACKS</string>
@@ -17,4 +17,16 @@
     <string name="dialog_permissions_title">Grant Permissions</string>
     <string name="dialog_permissions_positive_button">edit</string>
     <string name="dialog_permissions_negative_button">exit</string>
+    <string name="title_action_share_track">Share</string>
+    <string name="title_action_add_playlist">Add to playlist</string>
+    <string name="title_action_delete_track">Delete</string>
+    <string name="title_action_track_detail">Detail</string>
+    <string name="arg_track_id">track id</string>
+    <string name="mime_type_audio">audio/*</string>
+    <string name="title_share_track">Share Track</string>
+    <string name="title_dialog_negative_action">cancel</string>
+    <string name="title_dialog_positive_action">ok</string>
+    <string name="message_dialog_delete_track">are you sure you wont to delete this track from device(this action can not be undone)?</string>
+    <string name="title_dialog_delete_track">Delete Track</string>
+    <string name="title_dialog_track_detail">Track Detail</string>
 </resources>

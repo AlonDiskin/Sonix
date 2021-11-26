@@ -1,11 +1,17 @@
 package com.diskin.alon.sonix.catalog.presentation
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Looper
+import android.provider.MediaStore
 import android.widget.RelativeLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelLazy
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -13,6 +19,8 @@ import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -27,7 +35,7 @@ import com.diskin.alon.sonix.common.presentation.ViewUpdateState
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import io.mockk.*
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.instanceOf
@@ -38,6 +46,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
+import org.robolectric.shadows.ShadowAlertDialog
 import org.robolectric.shadows.ShadowToast
 
 /**
@@ -54,6 +63,7 @@ class AudioTracksFragmentTest {
 
     // Collaborators
     private val viewModel = mockk<AudioTracksViewModel>()
+    private val navController: TestNavHostController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
     // Stub data
     private val tracks = MutableLiveData<List<UiAudioTrack>>()
@@ -77,6 +87,13 @@ class AudioTracksFragmentTest {
         // Launch fragment under test
         scenario = launchFragmentInHiltContainer<AudioTracksFragment>()
         Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Set test nav controller
+        navController.setGraph(R.navigation.catalog_nav_graph)
+        scenario.onActivity { activity ->
+            val fragment = activity.supportFragmentManager.fragments.first()
+            Navigation.setViewNavController(fragment.requireView(), navController)
+        }
     }
 
     @After
@@ -119,7 +136,7 @@ class AudioTracksFragmentTest {
         // Then
         val expectedToastMessage = ApplicationProvider.getApplicationContext<Context>()
             .getString(R.string.error_message_storage)
-        Truth.assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
+        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
     }
 
     @Test
@@ -134,7 +151,7 @@ class AudioTracksFragmentTest {
         // Then
         val expectedToastMessage = ApplicationProvider.getApplicationContext<Context>()
             .getString(R.string.error_message_unknown)
-        Truth.assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
+        assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
 
     }
 
@@ -244,5 +261,134 @@ class AudioTracksFragmentTest {
 
         // Then
         verify { viewModel.sortTracks(AudioTracksSorting.ArtistName(true)) }
+    }
+
+    @Test
+    fun openTrackDetailScreen_WhenUserSelectToSeeTrackDetail() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        onView((withText(R.string.title_action_track_detail)))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        assertThat(navController.currentDestination!!.id).isEqualTo(R.id.audioTrackDetailDialog)
+        assertThat(
+            navController.currentBackStackEntry?.arguments?.get(
+                ApplicationProvider.getApplicationContext<Context>()
+                    .getString(R.string.arg_track_id))
+        )
+            .isEqualTo(uiTracks.first().id)
+    }
+
+    @Test
+    fun shareTrack_WhenUserSelectToShareTrack() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+        val firstTrackUri = Uri.parse(MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            .toString().plus("/${uiTracks.first().id}"))
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        Intents.init()
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        onView((withText(R.string.title_action_share_track)))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        Intents.intended(IntentMatchers.hasAction(Intent.ACTION_CHOOSER))
+        Intents.intended(IntentMatchers.hasExtraWithKey(Intent.EXTRA_INTENT))
+
+        val intent = Intents.getIntents().first().extras?.get(Intent.EXTRA_INTENT) as Intent
+
+        assertThat(intent.type).isEqualTo(ApplicationProvider.getApplicationContext<Context>()
+            .getString(R.string.mime_type_audio))
+        assertThat(intent.clipData!!.getItemAt(0).uri).isEqualTo(firstTrackUri)
+
+        Intents.release()
+    }
+
+    @Test
+    fun showConfirmationDialog_WhenUserSelectToDeleteTrack() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+
+        every { viewModel.deleteTrack(uiTracks.first().id) } returns Unit
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        onView((withText(R.string.title_action_delete_track)))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        val dialog = (ShadowAlertDialog.getLatestDialog() as AlertDialog)
+
+        assertThat(dialog.isShowing).isTrue()
+    }
+
+    @Test
+    fun deleteTrack_WhenUserSelectToDeleteTrackFromDialog() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+
+        every { viewModel.deleteTrack(uiTracks.first().id) } returns Unit
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        onView((withText(R.string.title_action_delete_track)))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        (ShadowAlertDialog.getLatestDialog() as AlertDialog)
+            .getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        verify { viewModel.deleteTrack(uiTracks.first().id) }
+    }
+
+    @Test
+    fun doNotDeleteTrack_WhenUserCancelTrackDeletionFromDialog() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+
+        every { viewModel.deleteTrack(uiTracks.first().id) } returns Unit
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        onView((withText(R.string.title_action_delete_track)))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        (ShadowAlertDialog.getLatestDialog() as AlertDialog)
+            .getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        verify(exactly = 0) { viewModel.deleteTrack(uiTracks.first().id) }
     }
 }

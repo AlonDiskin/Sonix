@@ -51,6 +51,7 @@ class SortingPersistedSteps : GreenCoffeeSteps() {
     fun user_open_audio_browser_screen() {
         // Launch audio tracks fragment
         scenario = launchFragmentInHiltContainer<AudioTracksFragment>()
+
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 

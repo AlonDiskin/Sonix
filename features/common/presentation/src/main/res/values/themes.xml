@@ -19,8 +19,8 @@
     </style>
 
     <style name="TextAppearance.App.Button" parent="TextAppearance.MaterialComponents.Button">
-        <item name="fontFamily">@font/poppins_regular</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="fontFamily">@font/poppins_semi_bold</item>
+        <item name="android:fontFamily">@font/poppins_semi_bold</item>
     </style>
 
     <style name="Theme.Sonix.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -58,7 +58,7 @@
     </style>
 
     <style name="TextAppearance.Body2" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="fontFamily">@font/poppins_extra_light</item>
-        <item name="android:fontFamily">@font/poppins_extra_light</item>
+        <item name="fontFamily">@font/poppins_light</item>
+        <item name="android:fontFamily">@font/poppins_light</item>
     </style>
 </resources>

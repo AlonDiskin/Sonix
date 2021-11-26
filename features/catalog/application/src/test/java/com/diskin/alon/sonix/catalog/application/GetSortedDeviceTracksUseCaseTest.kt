@@ -4,7 +4,7 @@ import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
 import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDto
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.usecase.GetSortedTracksUseCase
+import com.diskin.alon.sonix.catalog.application.usecase.GetSortedDeviceTracksUseCase
 import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.application.util.TracksMapper
 import com.diskin.alon.sonix.catalog.core.AudioTrack
@@ -17,12 +17,12 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * [GetSortedTracksUseCase] uni test class.
+ * [GetSortedDeviceTracksUseCase] uni test class.
  */
-class GetSortedTracksUseCaseTest {
+class GetSortedDeviceTracksUseCaseTest {
 
     // Test subject
-    private lateinit var useCase: GetSortedTracksUseCase
+    private lateinit var useCase: GetSortedDeviceTracksUseCase
 
     // Collaborators
     private val tracksRepository: AudioTrackRepository = mockk()
@@ -31,7 +31,7 @@ class GetSortedTracksUseCaseTest {
 
     @Before
     fun setUp() {
-        useCase = GetSortedTracksUseCase(tracksRepository, sortingStore, tracksMapper)
+        useCase = GetSortedDeviceTracksUseCase(tracksRepository, sortingStore, tracksMapper)
     }
 
     @Test

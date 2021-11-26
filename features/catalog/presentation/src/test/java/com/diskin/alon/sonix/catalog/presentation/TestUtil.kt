@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.catalog.presentation
 
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
+import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrackDetail
 
 fun createUiTracks(): List<UiAudioTrack> = listOf(
     UiAudioTrack(
@@ -18,4 +19,14 @@ fun createUiTracks(): List<UiAudioTrack> = listOf(
         "name_3",
         "artist_3"
     )
+)
+
+fun createUiTrackDetail() = UiAudioTrackDetail(
+    "track_name",
+    "track_artist",
+    "track_album",
+    "track_path",
+    "track_size",
+    "track_duration",
+    "track_format"
 )

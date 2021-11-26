@@ -7,7 +7,7 @@ Feature: Sort the shown device tracks
     Given User has not changed tracks sorting
     And User has public audio tracks on his device
     When User launch app from device home
-    Then App should show tracks catalog sorted by date in desc order
-    When User select tracks ordering as ascending
+    Then App should show tracks sorted by date in descending order
+    And User select tracks ordering as ascending
     And User relaunch app
     Then App should show tracks catalog sorted by date in ascending order

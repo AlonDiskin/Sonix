@@ -13,7 +13,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
         menu.clear()
+        super.onCreateOptionsMenu(menu, inflater)
     }
 }
