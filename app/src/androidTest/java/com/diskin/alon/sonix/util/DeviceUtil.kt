@@ -224,7 +224,7 @@ object DeviceUtil {
     }
 
     /**
-     * Clear app preferences from device
+     * Clear app preferences from device.
      */
     fun clearSharedPrefs() {
         val context = getApplicationContext<Context>()
