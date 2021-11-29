@@ -1,9 +1,14 @@
 package com.diskin.alon.sonix.util
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaMetadataRetriever
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.By
@@ -12,6 +17,7 @@ import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until.hasObject
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
+import java.io.File
 
 /**
  * Instrumentation device utilities.
@@ -21,14 +27,14 @@ object DeviceUtil {
     /**
      *  Opens device home screen.
      */
-    fun openDeviceHome() {
+    private fun openDeviceHome() {
         UiDevice.getInstance(getInstrumentation()).pressHome()
     }
 
     /**
      * Launches app under test in test device.
      */
-    fun launchApp() {
+    private fun launchApp() {
         val timeout = 5000L
         val launcherPackage =
             getLaunchPackageName()
@@ -71,7 +77,7 @@ object DeviceUtil {
         UiDevice.getInstance(getInstrumentation()).pressBack()
     }
 
-    fun getDevice(): UiDevice {
+    private fun getDevice(): UiDevice {
         return UiDevice.getInstance(getInstrumentation())
     }
 
@@ -127,4 +133,112 @@ object DeviceUtil {
         }
 
     }
+
+    fun checkIfDeviceHasPublicAudioTracks(): Boolean {
+        val context = getApplicationContext<Context>()
+        val contentResolver = context.contentResolver!!
+        val tracksCount: Int
+
+        val cursor = contentResolver.query(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.MediaColumns._ID),
+            null,
+            null
+        )!!
+
+        tracksCount = cursor.count
+        cursor.close()
+
+        return tracksCount != 0
+    }
+
+    fun copyAudioFilesToDevice(testFilesPaths: List<String>): List<DeviceTrack> {
+        val context = getApplicationContext<Context>()
+        val deviceTracks = mutableListOf<DeviceTrack>()
+        val contentUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+
+        testFilesPaths.forEach { path ->
+            Thread.sleep(1000)
+
+            val values = ContentValues(3)
+
+            values.put(MediaStore.Audio.Media.DISPLAY_NAME, path.split("/").last().trimEnd('.','m','p','3'))
+            values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg")
+            values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Music")
+
+            val resolver = context.contentResolver
+            val uri = resolver.insert(contentUri, values)
+
+            resolver.openOutputStream(uri!!).use { fos ->
+                val fis = javaClass.classLoader!!.getResourceAsStream(path)
+                val readData = ByteArray(1024 * 500)
+                var i = fis.read(readData)
+
+                while (i != -1) {
+                    fos!!.write(readData, 0, i)
+                    i = fis.read(readData)
+                }
+
+                fos!!.close()
+            }
+
+            val trackTitle = path.split("/").last().trimEnd('.','m','p','3')
+            val trackPath = "/storage/emulated/0/Music/".plus(trackTitle).plus(".mp3")
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(trackPath)
+            val trackDuration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
+            val trackAlbum = "Music"
+            val trackArtist = "<unknown>"
+            val trackMimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)!!
+
+            deviceTracks.add(
+                DeviceTrack(
+                    trackTitle,
+                    trackArtist,
+                    trackAlbum,
+                    trackMimeType,
+                    trackPath,
+                    trackDuration,
+                    uri
+                )
+            )
+
+            retriever.release()
+        }
+
+        return deviceTracks
+    }
+
+    fun deleteFilesFromDevice(filePaths: List<String>) {
+        filePaths.forEach { File(it).delete() }
+    }
+
+    /**
+     * Delete media items from device media store.
+     */
+    fun deleteFromMediaStore(uris: List<Uri>) {
+        uris.forEach {
+            getApplicationContext<Context>()
+                .contentResolver.delete(it,null,null)
+        }
+    }
+
+    /**
+     * Clear app preferences from device.
+     */
+    fun clearSharedPrefs() {
+        val context = getApplicationContext<Context>()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = prefs.edit()
+        editor.clear()
+        editor.commit()
+    }
+
+    data class DeviceTrack(val title:String,
+                           val artist: String,
+                           val album: String,
+                           val format: String,
+                           val path: String,
+                           val duration: Long,
+                           val uri: Uri)
 }

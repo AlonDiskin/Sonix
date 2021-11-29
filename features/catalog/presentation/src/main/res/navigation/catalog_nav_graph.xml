@@ -7,7 +7,16 @@
 
     <fragment
         android:id="@+id/catalogFragment"
-        android:name="com.diskin.alon.sonix.catalog.presentation.CatalogFragment"
+        android:name="com.diskin.alon.sonix.catalog.presentation.controller.CatalogFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/fragment_catalog"/>
+        tools:layout="@layout/fragment_audio_tracks">
+        <action
+            android:id="@+id/action_catalogFragment_to_audioTrackDetailDialog"
+            app:destination="@id/audioTrackDetailDialog" />
+    </fragment>
+    <dialog
+        android:id="@+id/audioTrackDetailDialog"
+        android:name="com.diskin.alon.sonix.catalog.presentation.controller.AudioTrackDetailDialog"
+        android:label="AudioTrackDetailDialog"
+        tools:layout="@layout/dialog_audio_track_detail"/>
 </navigation>
