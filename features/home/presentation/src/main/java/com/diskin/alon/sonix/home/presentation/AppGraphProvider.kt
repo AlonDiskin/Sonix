@@ -6,4 +6,7 @@ interface AppGraphProvider {
 
     @NavigationRes
     fun getAppGraph(): Int
+
+    @NavigationRes
+    fun getPlayerGraph(): Int
 }

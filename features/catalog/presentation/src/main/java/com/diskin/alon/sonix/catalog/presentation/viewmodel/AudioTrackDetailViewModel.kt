@@ -5,12 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import com.diskin.alon.sonix.catalog.application.usecase.GetDeviceTrackDetailUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppError
-import com.diskin.alon.sonix.catalog.application.util.AppResult
-import com.diskin.alon.sonix.catalog.application.util.mapAppResult
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrackDetail
 import com.diskin.alon.sonix.catalog.presentation.util.ModelTrackDetailMapper
+import com.diskin.alon.sonix.common.application.AppError
+import com.diskin.alon.sonix.common.application.AppResult
+import com.diskin.alon.sonix.common.application.mapAppResult
 import com.diskin.alon.sonix.common.presentation.RxViewModel
 import com.diskin.alon.sonix.common.presentation.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +28,7 @@ class AudioTrackDetailViewModel @Inject constructor(
 
     private val _trackDetail = MutableLiveData<UiAudioTrackDetail>()
     val trackDetail: LiveData<UiAudioTrackDetail> get() = _trackDetail
-    val error = SingleLiveEvent<AppError>()
+    val error = SingleLiveEvent<com.diskin.alon.sonix.common.application.AppError>()
 
     init {
         val trackId = savedState.get<Int>(resources.getString(R.string.arg_track_id)) ?:

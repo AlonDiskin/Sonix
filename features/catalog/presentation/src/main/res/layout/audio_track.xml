@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="kotlin.jvm.functions.Function1"/>
         <import type="kotlin.jvm.functions.Function2"/>
         <import type="android.view.View"/>
         <import type="kotlin.Unit"/>
@@ -13,23 +14,18 @@
             name="track"
             type="UiAudioTrack" />
         <variable
+            name="trackClickListener"
+            type="Function1&lt;UiAudioTrack,Unit>" />
+        <variable
             name="optionsClickListener"
             type="Function2&lt;UiAudioTrack,View,Unit>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/play_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_outline_play_arrow_24" />
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> trackClickListener.invoke(track)}">
 
         <ImageButton
             android:id="@+id/track_menu"
@@ -48,15 +44,14 @@
             android:id="@+id/track_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginStart="@dimen/horizontal_margin"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@{track.name}"
             android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="@+id/play_icon"
             app:layout_constraintEnd_toStartOf="@+id/track_menu"
-            app:layout_constraintStart_toEndOf="@+id/play_icon"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/track_menu"
             tools:text="Yesterday" />
 

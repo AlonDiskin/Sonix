@@ -43,6 +43,8 @@ dependencies {
     api project(':features:catalog:core')
     api project(':features:catalog:application')
     api project(':features:catalog:presentation')
+    api project(':features:catalog:events')
+    api project(':features:catalog:infrastructure')
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"

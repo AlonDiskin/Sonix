@@ -13,6 +13,7 @@ import com.diskin.alon.sonix.catalog.presentation.databinding.AudioTrackBinding
  * [UiAudioTrack]s adapter.
  */
 class AudioTracksAdapter(
+    private val trackClickListener: (UiAudioTrack) -> (Unit),
     private val optionsMenuClickListener: (UiAudioTrack,View) -> (Unit)
     ) : ListAdapter<UiAudioTrack, AudioTracksAdapter.AudioTrackViewHolder>(
     DIFF_CALLBACK
@@ -36,7 +37,10 @@ class AudioTracksAdapter(
             parent,
             false)
 
-        return AudioTrackViewHolder(binding,optionsMenuClickListener)
+        return AudioTrackViewHolder(
+            binding,
+            trackClickListener,
+            optionsMenuClickListener)
     }
 
     override fun onBindViewHolder(holder: AudioTrackViewHolder, position: Int) {
@@ -45,10 +49,12 @@ class AudioTracksAdapter(
 
     class AudioTrackViewHolder(
         private val binding: AudioTrackBinding,
+        trackClickListener: (UiAudioTrack) -> (Unit),
         optionsMenuClickListener: (UiAudioTrack,View) -> (Unit)
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
+            binding.trackClickListener = trackClickListener
             binding.optionsClickListener = optionsMenuClickListener
         }
 

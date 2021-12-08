@@ -3,14 +3,16 @@ package com.diskin.alon.sonix.catalog.presentation.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
+import com.diskin.alon.sonix.catalog.application.model.PlayTracksRequest
 import com.diskin.alon.sonix.catalog.application.usecase.DeleteDeviceTrackUseCase
 import com.diskin.alon.sonix.catalog.application.usecase.GetLastTracksSortingUseCase
 import com.diskin.alon.sonix.catalog.application.usecase.GetSortedDeviceTracksUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppError
-import com.diskin.alon.sonix.catalog.application.util.AppResult
-import com.diskin.alon.sonix.catalog.application.util.mapAppResult
+import com.diskin.alon.sonix.catalog.application.usecase.PlayTracksUseCase
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.util.ModelTracksMapper
+import com.diskin.alon.sonix.common.application.AppError
+import com.diskin.alon.sonix.common.application.AppResult
+import com.diskin.alon.sonix.common.application.mapAppResult
 import com.diskin.alon.sonix.common.presentation.RxViewModel
 import com.diskin.alon.sonix.common.presentation.SingleLiveEvent
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
@@ -25,9 +27,11 @@ class AudioTracksViewModel @Inject constructor(
     private val getLastSorting: GetLastTracksSortingUseCase,
     private val getSortedTracks: GetSortedDeviceTracksUseCase,
     private val deleteDeviceTrackUseCase: DeleteDeviceTrackUseCase,
+    private val playTracksUseCase: PlayTracksUseCase,
     private val tracksMapper: ModelTracksMapper
 ) : RxViewModel() {
 
+    private val playTracksSubject = BehaviorSubject.create<PlayTracksRequest>()
     private val selectedSorting = BehaviorSubject.create<AudioTracksSorting>()
     private val _sorting = MutableLiveData<AudioTracksSorting>()
     val sorting: LiveData<AudioTracksSorting> get() = _sorting
@@ -42,7 +46,8 @@ class AudioTracksViewModel @Inject constructor(
         addSubscription(
             getLastSorting(),
             createModelTracksSubscription(),
-            createModelTrackDeletionSubscription()
+            createModelTrackDeletionSubscription(),
+            createModelTracksPlayingSubscription()
         )
     }
 
@@ -52,6 +57,10 @@ class AudioTracksViewModel @Inject constructor(
 
     fun deleteTrack(id: Int) {
         deletionSubject.onNext(id)
+    }
+
+    fun playTracks(statIndex: Int, ids: List<Int>) {
+        playTracksSubject.onNext(PlayTracksRequest(statIndex,ids))
     }
 
     private fun createModelTrackDeletionSubscription(): Disposable {
@@ -111,5 +120,15 @@ class AudioTracksViewModel @Inject constructor(
     private fun handleTrackDeletionSubscriptionError(throwable: Throwable) {
         throwable.printStackTrace()
         error.value = AppError.UNKNOWN_ERROR
+    }
+
+    private fun createModelTracksPlayingSubscription(): Disposable {
+        return playTracksSubject.switchMapSingle { playTracksUseCase.execute(it) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({},::handleModelTracksPlayingSubscriptionError)
+    }
+
+    private fun handleModelTracksPlayingSubscriptionError(throwable: Throwable) {
+        throwable.printStackTrace()
     }
 }

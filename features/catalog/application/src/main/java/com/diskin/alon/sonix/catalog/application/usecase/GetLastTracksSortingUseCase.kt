@@ -2,8 +2,8 @@ package com.diskin.alon.sonix.catalog.application.usecase
 
 import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppResult
-import com.diskin.alon.sonix.catalog.application.util.UseCase
+import com.diskin.alon.sonix.common.application.AppResult
+import com.diskin.alon.sonix.common.application.UseCase
 import io.reactivex.Single
 import javax.inject.Inject
 

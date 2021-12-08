@@ -2,4 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.diskin.alon.presentation">
 
+    <application>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/activity_settings_label"
+            android:theme="@style/Theme.Sonix"
+            android:exported="true" />
+    </application>
+
 </manifest>

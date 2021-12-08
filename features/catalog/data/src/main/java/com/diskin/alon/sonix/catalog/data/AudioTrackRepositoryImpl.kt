@@ -2,8 +2,8 @@ package com.diskin.alon.sonix.catalog.data
 
 import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject

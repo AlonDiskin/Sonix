@@ -3,6 +3,7 @@ package com.diskin.alon.sonix.catalog.featuretesting
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.databinding.ViewDataBinding
 import androidx.test.filters.MediumTest
+import com.diskin.alon.sonix.catalog.di.CatalogEventsModule
 import com.diskin.alon.sonix.common.uitesting.setFinalStatic
 import com.mauriciotogneri.greencoffee.GreenCoffeeConfig
 import com.mauriciotogneri.greencoffee.GreenCoffeeTest
@@ -10,6 +11,7 @@ import com.mauriciotogneri.greencoffee.ScenarioConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
+import dagger.hilt.android.testing.UninstallModules
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.junit.BeforeClass
@@ -22,6 +24,7 @@ import org.robolectric.annotation.LooperMode
 import java.util.ArrayList
 
 @HiltAndroidTest
+@UninstallModules(CatalogEventsModule::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 @Config(application = HiltTestApplication::class,sdk = [29])

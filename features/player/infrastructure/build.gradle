@@ -1,0 +1,88 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    compileSdk 30
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "com.diskin.alon.sonix.player.infrastructure.CustomTestRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+kapt {
+    correctErrorTypes true
+}
+
+dependencies {
+
+    // Project modules
+    implementation project(':features:catalog:events')
+    implementation project(':features:common:application')
+
+    // Android core
+    implementation "androidx.core:core-ktx:$android_core_version"
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+
+    // Android media
+    api "androidx.media:media:1.4.3"
+
+    // Android preference
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.16.0'
+
+    // Rx
+    implementation "io.reactivex.rxjava2:rxjava:$rx_java_version"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rx_kotlin_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
+
+    // Eventbus
+    api "org.greenrobot:eventbus:3.2.0"
+
+    // Local testing
+    testImplementation project(':features:common:unitTesting')
+    testImplementation project(':features:common:instrumentationTesting')
+    testImplementation project(':features:common:exoPlayerTestUtil')
+    testImplementation "org.robolectric:robolectric:4.7.3"
+    kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    testImplementation 'org.checkerframework:checker-qual:3.13.0'
+    testImplementation 'org.checkerframework:checker-compat-qual:2.5.5'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.2'
+}

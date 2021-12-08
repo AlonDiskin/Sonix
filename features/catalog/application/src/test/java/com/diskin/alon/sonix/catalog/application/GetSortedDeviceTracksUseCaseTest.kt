@@ -5,9 +5,9 @@ import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDto
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.catalog.application.usecase.GetSortedDeviceTracksUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.application.util.TracksMapper
 import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -16,9 +16,6 @@ import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 
-/**
- * [GetSortedDeviceTracksUseCase] uni test class.
- */
 class GetSortedDeviceTracksUseCaseTest {
 
     // Test subject

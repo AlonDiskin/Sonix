@@ -3,6 +3,7 @@ package com.diskin.alon.sonix.catalog.featuretesting
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Looper
 import android.provider.MediaStore
 import androidx.test.core.app.ActivityScenario
@@ -12,11 +13,10 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.diskin.alon.sonix.catalog.application.util.AppResult
-import com.diskin.alon.sonix.catalog.core.AudioTrack
 import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
+import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
@@ -29,7 +29,6 @@ import com.mauriciotogneri.greencoffee.annotations.When
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.reactivex.Observable
-import io.reactivex.subjects.BehaviorSubject
 import org.robolectric.Shadows
 
 class TrackSharedSteps : GreenCoffeeSteps() {
@@ -66,7 +65,13 @@ class TrackSharedSteps : GreenCoffeeSteps() {
     @Then("^App should show device sharing ui$")
     fun app_should_show_device_sharing_ui() {
         val firstTrackUri = Uri.parse(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Audio.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
             .toString().plus("/${deviceTracks.first().id}"))
 
         Intents.intended(IntentMatchers.hasAction(Intent.ACTION_CHOOSER))

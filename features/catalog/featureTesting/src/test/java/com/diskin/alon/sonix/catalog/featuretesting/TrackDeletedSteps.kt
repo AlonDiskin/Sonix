@@ -6,11 +6,11 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.core.AudioTrack
 import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
+import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer

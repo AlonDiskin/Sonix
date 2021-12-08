@@ -3,18 +3,21 @@ package com.diskin.alon.sonix.catalog.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDto
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
+import com.diskin.alon.sonix.catalog.application.model.PlayTracksRequest
 import com.diskin.alon.sonix.catalog.application.usecase.DeleteDeviceTrackUseCase
 import com.diskin.alon.sonix.catalog.application.usecase.GetLastTracksSortingUseCase
 import com.diskin.alon.sonix.catalog.application.usecase.GetSortedDeviceTracksUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppError
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.catalog.application.usecase.PlayTracksUseCase
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.util.ModelTracksMapper
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTracksViewModel
+import com.diskin.alon.sonix.common.application.AppError
+import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
+import io.reactivex.android.plugins.RxAndroidPlugins
 import com.google.common.truth.Truth.assertThat
 import io.mockk.*
-import io.reactivex.android.plugins.RxAndroidPlugins
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.SingleSubject
@@ -51,6 +54,7 @@ class AudioTracksViewModelTest {
     private val getLastSorting: GetLastTracksSortingUseCase = mockk()
     private val getSortedTracks: GetSortedDeviceTracksUseCase = mockk()
     private val deleteDeviceTrackUseCase: DeleteDeviceTrackUseCase = mockk()
+    private val playTracksUseCase: PlayTracksUseCase = mockk()
     private val tracksMapper: ModelTracksMapper = mockk()
 
     // Stub data
@@ -69,6 +73,7 @@ class AudioTracksViewModelTest {
             getLastSorting,
             getSortedTracks,
             deleteDeviceTrackUseCase,
+            playTracksUseCase,
             tracksMapper
         )
     }
@@ -180,6 +185,21 @@ class AudioTracksViewModelTest {
 
         // Then
         assertThat(viewModel.error.value).isEqualTo(modelError)
+    }
+
+    @Test
+    fun playModelTracks_WhenRequested() {
+        // Given
+        val index = 1
+        val ids = mockk<List<Int>>()
+
+        every { playTracksUseCase.execute(any()) } returns Single.just(AppResult.Success(Unit))
+
+        // When
+        viewModel.playTracks(index,ids)
+
+        // Then
+        verify { playTracksUseCase.execute(PlayTracksRequest(index,ids)) }
     }
 
     private fun sortingParams() = arrayOf(

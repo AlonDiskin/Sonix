@@ -32,7 +32,17 @@ class MainActivity : AppCompatActivity() {
         // Set toolbar
         setSupportActionBar(layout.toolbar)
 
-        // Set nav controller and navigation ui
+        // Set player nav graph
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.nav_player_container,
+                    NavHostFragment.create(graphProvider.getPlayerGraph())
+                )
+                .commitNow()
+        }
+
+        // Set nav controller and navigation ui for main app graph
         val navController = if (savedInstanceState == null) {
             val host = NavHostFragment.create(graphProvider.getAppGraph())
 

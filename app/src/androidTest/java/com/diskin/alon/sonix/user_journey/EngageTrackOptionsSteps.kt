@@ -2,6 +2,7 @@ package com.diskin.alon.sonix.user_journey
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -33,12 +34,12 @@ class EngageTrackOptionsSteps : GreenCoffeeSteps() {
     fun user_has_public_audio_tracks_on_his_device() {
         deviceTracks = DeviceUtil.copyAudioFilesToDevice(
             listOf(
-                "assets/audio/Elvis Presley - If I Can Dream '68.mp3",
-                "assets/audio/The Beatles - Yesterday.mp3",
-                "assets/audio/Led Zeppelin - Black Dog (Official Audio).mp3",
-                "assets/audio/The Doors - The End (Live At the Isle Of Wight 1970).mp3",
-                "assets/audio/The Jimi Hendrix Experience - All Along The Watchtower (Official Audio).mp3",
-                "assets/audio/The Rolling Stones - Honky Tonk Woman (Brussels Affair, Live in 1973).mp3",
+                "assets/audio/Broke_For_Free_01_Night_Owl.mp3",
+                "assets/audio/DR_03_Sedativa_III.mp3",
+                "assets/audio/JekK_Day_Free.mp3",
+                "assets/audio/Sia_The_Greatest.mp3",
+                "assets/audio/StrangeZero_AirBook.mp3",
+                "assets/audio/The.madpix.project_Bad_Chick.mp3",
             )
         )
     }
@@ -116,7 +117,13 @@ class EngageTrackOptionsSteps : GreenCoffeeSteps() {
         val selectionArgs = arrayOf(deviceTracks.last().uri.lastPathSegment)
         val cursor = ApplicationProvider.getApplicationContext<Context>()
             .contentResolver.query(
-                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Audio.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL
+                    )
+                } else {
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                },
                 arrayOf(MediaStore.Audio.Media._ID),
                 selection,
                 selectionArgs,

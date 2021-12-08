@@ -11,11 +11,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTrackDetailDialog
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
+import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchDialogInHiltContainer

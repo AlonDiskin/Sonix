@@ -3,8 +3,7 @@ package com.diskin.alon.sonix.catalog.data
 import android.content.SharedPreferences
 import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppError
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -34,7 +33,7 @@ class SortingStoreImpl @Inject constructor(
 
             emitter.onSuccess(AppResult.Success(lastSorting))
         }
-            .onErrorReturn { AppResult.Error(AppError.DEVICE_STORAGE) }
+            .onErrorReturn { AppResult.Error(com.diskin.alon.sonix.common.application.AppError.DEVICE_STORAGE) }
             .subscribeOn(Schedulers.io())
     }
 
@@ -53,7 +52,7 @@ class SortingStoreImpl @Inject constructor(
 
             emitter.onSuccess(AppResult.Success(Unit))
         }
-            .onErrorReturn { AppResult.Error(AppError.DEVICE_STORAGE) }
+            .onErrorReturn { AppResult.Error(com.diskin.alon.sonix.common.application.AppError.DEVICE_STORAGE) }
             .subscribeOn(Schedulers.io())
     }
 }
