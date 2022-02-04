@@ -43,7 +43,7 @@ class PlayerFragment : Fragment() {
                     token
                 )
 
-                // Save the controller
+                // Save the  media controller
                 MediaControllerCompat.setMediaController(requireActivity(), mediaController)
 
                 // Check if has current state to present
