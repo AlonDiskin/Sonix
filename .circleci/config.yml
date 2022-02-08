@@ -69,7 +69,7 @@ jobs:
   feature_android_test:
     working_directory: ~/code
     docker:
-      - image: circleci/android:api-28
+      - image: circleci/android:api-30
     environment:
       JVM_OPTS: -Xmx3200m
     steps:
@@ -85,7 +85,7 @@ jobs:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
           name: Build debug APK and release APK
-          command: ./gradlew :app:assembleDebug :features:player:featureTesting:assembleDebug :features:player:featureTesting:assembleDebugAndroidTest --no-daemon --max-workers=2 --stacktrace
+          command: ./gradlew :features:player:playeFeatureTest:assembleDebug :features:player:playeFeatureTest:assembleDebugAndroidTest --no-daemon --max-workers=2 --stacktrace
       - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
@@ -99,9 +99,8 @@ jobs:
           command: >
             sudo gcloud firebase test android run \
               --type instrumentation \
-              --app app/build/outputs/apk/debug/app-debug.apk \
-              --test features/player/build/outputs/apk/androidTest/debug/featureTesting-debug-androidTest.apk \
-              --device model=Pixel2,version=30,locale=en,orientation=portrait \
+              --app features/player/playerFeatureTest/build/outputs/apk/debug/playerFeatureTest-debug.apk \
+              --test features/player/playerFeatureTest/build/outputs/apk/androidTest/debug/playerFeatureTest-debug-androidTest.apk \
   e2e_tests:
     working_directory: ~/code
     docker:
@@ -144,5 +143,8 @@ workflows:
     jobs:
       - unit_tests
       - feature_tests
-      - e2e_tests
       - feature_android_test
+      - e2e_tests:
+          filters:
+            branches:
+              only: main

@@ -46,6 +46,12 @@ dependencies {
     implementation "androidx.core:core-ktx:$android_core_version"
     implementation 'androidx.appcompat:appcompat:1.3.0'
 
+    // Android preference
+    implementation 'androidx.preference:preference-ktx:1.1.1'
+
+    // Gson
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     // Javax
     implementation "javax.inject:javax.inject:$javax_annotation_version"
 

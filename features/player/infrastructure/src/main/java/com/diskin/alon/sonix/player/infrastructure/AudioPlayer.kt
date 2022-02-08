@@ -1,13 +1,16 @@
 package com.diskin.alon.sonix.player.infrastructure
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.diskin.alon.sonix.common.application.AppError
+import com.diskin.alon.sonix.player.infrastructure.interfaces.PlayerStateCache
 import com.diskin.alon.sonix.player.infrastructure.model.AudioPlayerTrack
 import com.diskin.alon.sonix.player.infrastructure.model.AudioProgressEvent
+import com.diskin.alon.sonix.player.infrastructure.model.PlayerState
 import com.diskin.alon.sonix.player.infrastructure.model.SingleLiveEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
@@ -15,6 +18,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy
 import dagger.hilt.android.scopes.ServiceScoped
+import io.reactivex.android.schedulers.AndroidSchedulers
 import org.greenrobot.eventbus.EventBus
 import java.io.FileNotFoundException
 import javax.inject.Inject
@@ -23,7 +27,10 @@ import javax.inject.Inject
  * Audio player for playing audio tracks from users device.
  */
 @ServiceScoped
-class AudioPlayer @Inject constructor(app: Application) {
+class AudioPlayer @Inject constructor(
+    app: Application,
+    private val stateCache: PlayerStateCache
+) {
 
     private val exoPlayer = ExoPlayer.Builder(app)
         .setMediaSourceFactory(createCustomMediaSourceFactory(app))
@@ -40,6 +47,11 @@ class AudioPlayer @Inject constructor(app: Application) {
     val error = SingleLiveEvent<AppError>()
     private val progressUpdater = AudioProgressUpdater(exoPlayer)
     { EventBus.getDefault().post(AudioProgressEvent(it)) }
+
+    init {
+        println("STEP_1:INIT_PLAYER")
+        restorePlayerState()
+    }
 
     @MainThread
     fun playTracks(startIndex: Int, tracks: List<Uri>) {
@@ -62,6 +74,7 @@ class AudioPlayer @Inject constructor(app: Application) {
     fun release() {
         exoPlayer.release()
         progressUpdater.release()
+        savePlayerState()
     }
 
     @MainThread
@@ -72,6 +85,20 @@ class AudioPlayer @Inject constructor(app: Application) {
     @MainThread
     fun pause() {
         exoPlayer.pause()
+        savePlayerState()
+    }
+
+    @MainThread
+    private fun savePlayerState() {
+        if (exoPlayer.mediaItemCount > 0) {
+            stateCache.save(
+                PlayerState(
+                    exoPlayer.currentPosition,
+                    exoPlayer.currentMediaItemIndex,
+                    getTracksUri()
+                )
+            )
+        }
     }
 
     private fun getTracksUri(): List<Uri> {
@@ -93,7 +120,7 @@ class AudioPlayer @Inject constructor(app: Application) {
     private fun updatePlayerTrackAudio() {
         if (exoPlayer.mediaItemCount > 0) {
             exoPlayer.currentMediaItem?.localConfiguration?.let {
-                val update = AudioPlayerTrack(it.uri,exoPlayer.isPlaying)
+                val update = AudioPlayerTrack(it.uri,exoPlayer.isPlaying,exoPlayer.currentPosition)
                 if (_currentTrack.value != update) _currentTrack.value = update
             } ?: run {
                 error.value = AppError.INTERNAL_ERROR
@@ -161,5 +188,24 @@ class AudioPlayer @Inject constructor(app: Application) {
                 }
             }
         }
+    }
+
+    @SuppressLint("CheckResult")
+    private fun restorePlayerState() {
+        stateCache.get()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                println("STEP_2:RESTORE_PLAYER")
+                if (exoPlayer.mediaItemCount == 0 && it.tracksUri.isNotEmpty()) {
+                    exoPlayer.stop()
+                    exoPlayer.clearMediaItems()
+                    it.tracksUri.forEach { uri -> exoPlayer.addMediaItem(MediaItem.fromUri(uri)) }
+                    exoPlayer.prepare()
+                    exoPlayer.seekTo(it.trackIndex,it.playbackPosition)
+                }
+            },{
+                it.printStackTrace()
+                println("PLAYER CACHE LOADING ERROR!!")
+            })
     }
 }

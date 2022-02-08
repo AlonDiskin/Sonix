@@ -2,7 +2,8 @@ package com.diskin.alon.sonix.player.featuretesting.di
 
 import android.app.Application
 import android.content.ContentResolver
-import com.diskin.alon.sonix.player.infrastructure.AudioPlayer
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +23,7 @@ object TestAppModule {
 
     @Singleton
     @Provides
-    fun provideAudioPlayer(app: Application): AudioPlayer {
-        return AudioPlayer(app)
+    fun provideSharedPreferences(app: Application): SharedPreferences {
+        return PreferenceManager.getDefaultSharedPreferences(app)
     }
 }

@@ -1,6 +1,8 @@
 package com.diskin.alon.sonix.player.di
 
+import com.diskin.alon.sonix.player.data.PlayerStateCacheImpl
 import com.diskin.alon.sonix.player.data.TrackMetadataStoreImpl
+import com.diskin.alon.sonix.player.infrastructure.interfaces.PlayerStateCache
 import com.diskin.alon.sonix.player.infrastructure.interfaces.TrackMetadataStore
 import dagger.Binds
 import dagger.Module
@@ -14,5 +16,9 @@ abstract class PlayerDataModule {
 
     @Singleton
     @Binds
-    abstract fun bindTrackMetadataStore(store:  TrackMetadataStoreImpl): TrackMetadataStore
+    abstract fun bindTrackMetadataStore(store: TrackMetadataStoreImpl): TrackMetadataStore
+
+    @Singleton
+    @Binds
+    abstract fun bindPlayerStateCache(cache: PlayerStateCacheImpl): PlayerStateCache
 }

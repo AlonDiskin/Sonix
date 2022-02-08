@@ -29,6 +29,11 @@ const val KEY_SERVICE_ERROR = "audio_service_error"
 @AndroidEntryPoint
 class AudioPlaybackService : MediaBrowserServiceCompat() {
 
+    companion object {
+        @VisibleForTesting
+        var service: AudioPlaybackService? = null
+    }
+
     @Inject
     lateinit var playListProvider: SelectedPlayListProvider
     @Inject
@@ -66,6 +71,8 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
+        service = this
+
         // Create a MediaSessionCompat
         mediaSession = MediaSessionCompat(baseContext, LOG_TAG).apply {
             // Set a pending intent for session activity
@@ -161,7 +168,7 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
                 false -> PlaybackStateCompat.STATE_PAUSED
                 true -> PlaybackStateCompat.STATE_PLAYING
             },
-            0,
+            track.position,
             1.0f
         )
         stateBuilder.setActions(

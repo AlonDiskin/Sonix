@@ -4,13 +4,18 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.common.exoplayertestutil.TestExoPlayerBuilder
+import com.diskin.alon.sonix.player.infrastructure.interfaces.PlayerStateCache
 import com.diskin.alon.sonix.player.infrastructure.model.AudioPlayerTrack
+import com.diskin.alon.sonix.player.infrastructure.model.PlayerState
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.verify
+import io.reactivex.subjects.SingleSubject
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,18 +30,25 @@ class AudioPlayerTest {
     // Test subject
     private lateinit var player: AudioPlayer
 
+    // Collaborators
+    private val cache: PlayerStateCache = mockk()
+
     // Stub data
     private val testPlayer = TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
         .build()
+    private val stateSubject = SingleSubject.create<PlayerState>()
 
     @Before
     fun setUp() {
+        // Stub mocks
+        every { cache.get() } returns stateSubject
+
         // Set mock player
         mockkConstructor(ExoPlayer.Builder::class)
         every { anyConstructed<ExoPlayer.Builder>().build() } returns testPlayer
 
         // Init subject
-        player = AudioPlayer(ApplicationProvider.getApplicationContext())
+        player = AudioPlayer(ApplicationProvider.getApplicationContext(),cache)
     }
 
     @Test
@@ -88,15 +100,15 @@ class AudioPlayerTest {
         TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
 
         // Then
-        assertThat(player.currentTrack.value).isEqualTo(AudioPlayerTrack(playlist.first(),true))
+        assertThat(player.currentTrack.value).isEqualTo(AudioPlayerTrack(playlist.first(),true,testPlayer.currentPosition))
     }
 
     @Test
     fun updateCurrentTrack_WhenPlayingNextTrack() {
         // Given
         val  playlist = listOf(
-            Uri.fromFile(File("src/test/resources/track_1.mp3")),
-            Uri.fromFile(File("src/test/resources/track_2.mp3"))
+            Uri.fromFile(File("src/test/resources/track_2.mp3")),
+            Uri.fromFile(File("src/test/resources/track_1.mp3"))
         )
 
         // When
@@ -104,7 +116,7 @@ class AudioPlayerTest {
         TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_ENDED)
 
         // Then
-        assertThat(player.currentTrack.value).isEqualTo(AudioPlayerTrack(playlist[1],true))
+        assertThat(player.currentTrack.value?.uri).isEqualTo(playlist[1])
     }
 
     @Test
@@ -205,10 +217,48 @@ class AudioPlayerTest {
         testPlayer.play()
         TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
 
+        every { cache.save(any()) } returns Unit
+
         // When
         player.pause()
 
         // Then
         assertThat(testPlayer.isPlaying).isFalse()
+    }
+
+    @Test
+    fun restorePlayerState_WhenCreated() {
+        // Given
+        val state = PlayerState(30L,0, listOf(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+
+        // When
+        stateSubject.onSuccess(state)
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentMediaItem?.localConfiguration?.uri).isEqualTo(state.tracksUri[state.trackIndex])
+        assertThat(player.currentTrack.value).isEqualTo(
+            AudioPlayerTrack(
+                state.tracksUri[state.trackIndex],
+                false,
+                state.playbackPosition
+            )
+        )
+    }
+
+    @Test
+    fun savePlayerState_WhenPaused() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.prepare()
+        val state = PlayerState(0,0, listOf(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+
+        every { cache.save(state) } returns Unit
+
+        // When
+        player.pause()
+
+        // Then
+        verify { cache.save(state) }
     }
 }

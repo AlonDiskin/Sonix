@@ -2,11 +2,13 @@ package com.diskin.alon.sonix.player.infrastructure
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.MutableLiveData
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.catalog.events.SelectedPlayListProvider
 import com.diskin.alon.sonix.catalog.events.SelectedPlaylist
 import com.diskin.alon.sonix.common.application.AppError
@@ -24,17 +26,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.SingleSubject
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 
@@ -42,20 +41,10 @@ import org.robolectric.annotation.LooperMode
  * [AudioPlaybackService] unit test class.
  */
 @HiltAndroidTest
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 @Config(application = HiltTestApplication::class)
 class AudioPlaybackServiceTest {
-
-    companion object {
-
-        @JvmStatic
-        @BeforeClass
-        fun setupClass() {
-            // Set Rx framework for testing
-            RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
-        }
-    }
 
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
@@ -91,6 +80,7 @@ class AudioPlaybackServiceTest {
 
         // Start service under test
         service = Robolectric.setupService(AudioPlaybackService::class.java)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test
@@ -122,6 +112,7 @@ class AudioPlaybackServiceTest {
 
         // When
         playListSubject.onNext(list)
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
         verify { player.playTracks(list.startIndex,list.tracks) }
@@ -152,10 +143,9 @@ class AudioPlaybackServiceTest {
     @Test
     fun updateSessionMetadataAndPlaybackState_WhenPlayerTrackChanged() {
         // Given
-        val playerTrack = AudioPlayerTrack(Uri.EMPTY,false)
+        val playerTrack = AudioPlayerTrack(Uri.EMPTY,false,30L)
         val metadata = createMetadata()
         val playbackState = PlaybackStateCompat.STATE_PAUSED
-        val playbackPosition = 0
         val sessionMock = mockk<MediaSessionCompat>()
         val slotMetadata = slot<MediaMetadataCompat>()
         val slotPlaybackState = slot<PlaybackStateCompat>()
@@ -166,12 +156,14 @@ class AudioPlaybackServiceTest {
 
         // When
         playerCurrentTrack.value = playerTrack
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
         verify { metadataStore.get(playerTrack.uri) }
 
         // When
         metadataSubject.onSuccess(AppResult.Success(metadata))
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
         assertThat(slotMetadata.captured.bundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE)).isEqualTo(metadata.name)
@@ -180,13 +172,13 @@ class AudioPlaybackServiceTest {
         assertThat(slotMetadata.captured.bundle.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).isEqualTo(metadata.duration)
         assertThat(Uri.parse(slotMetadata.captured.bundle.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI))).isEqualTo(metadata.uri)
         assertThat(slotPlaybackState.captured.state).isEqualTo(playbackState)
-        assertThat(slotPlaybackState.captured.position).isEqualTo(playbackPosition)
+        assertThat(slotPlaybackState.captured.position).isEqualTo(playerTrack.position)
     }
 
     @Test
     fun doNotUpdateSessionMetadata_WhenPlayerUpdatesSameTrack() {
         // Given
-        val playerTrack = AudioPlayerTrack(Uri.EMPTY,true)
+        val playerTrack = AudioPlayerTrack(Uri.EMPTY,true,45L)
 
         // When
         playerCurrentTrack.value = playerTrack
@@ -251,8 +243,9 @@ class AudioPlaybackServiceTest {
         service.mediaSession = sessionMock
 
         // When
-        playerCurrentTrack.value = AudioPlayerTrack(mockk(),false)
+        playerCurrentTrack.value = AudioPlayerTrack(mockk(),false,0L)
         metadataSubject.onSuccess(AppResult.Error(storeError))
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
         assertThat(storeError.name).isEqualTo(slot.captured.getString(KEY_SERVICE_ERROR))

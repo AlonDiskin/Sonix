@@ -49,7 +49,7 @@ kapt {
 dependencies {
 
     // Project modules
-    implementation project(':features:common:presentation')
+    api project(':features:common:presentation')
     implementation project(':features:catalog:application')
 
     // Android core

@@ -4,7 +4,6 @@ Feature: Play device audio track
   to play an existing track from users device.
 
   Scenario: Play track
-    Given User has public audio tracks on his device
-    When User launch app from device home
-    When User select to play first listed device track
-    Then App should play track playback in app player
+    Given user launch app from device home
+    When he select to play first listed device track
+    Then app should play track

@@ -70,27 +70,22 @@ class PlayerFragment : Fragment() {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat) {
             layoutBinding.track = UiPlayerTrack(
-                metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE)!!,
-                metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)!!,
-                Uri.parse(metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)!!)
+                metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_TITLE) ?: "Unknown",
+                metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_ARTIST) ?: "Unknown",
+                Uri.parse(metadata.bundle.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI) ?: "")
             )
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
             when(state.state) {
-                PlaybackStateCompat.STATE_NONE -> layoutBinding.root.visibility = View.GONE
-                PlaybackStateCompat.STATE_PLAYING -> {
-                    layoutBinding.playPauseButton.setImageResource(R.drawable.ic_round_pause_32)
-                    layoutBinding.playPauseButton.tag = getString(R.string.tag_pause)
-                }
-                PlaybackStateCompat.STATE_PAUSED -> {
-                    layoutBinding.playPauseButton.setImageResource(R.drawable.ic_round_play_arrow_32)
-                    layoutBinding.playPauseButton.tag = getString(R.string.tag_play)
-                }
+                PlaybackStateCompat.STATE_NONE -> hidePlayerUi()
+                PlaybackStateCompat.STATE_PLAYING -> showPauseButton()
+                PlaybackStateCompat.STATE_PAUSED -> showPlayButton()
             }
 
             if (state.state == PlaybackStateCompat.STATE_PAUSED || state.state == PlaybackStateCompat.STATE_PLAYING) {
-                layoutBinding.root.visibility = View.VISIBLE
+                showPlayerUi()
+                setTrackProgressCurrentPosition(state.position.toDouble())
             }
         }
 
@@ -167,5 +162,35 @@ class PlayerFragment : Fragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onAudioProgressEvent(event: AudioProgressEvent) {
         layoutBinding.progressBar.progress = event.progress
+    }
+
+    private fun showPlayButton() {
+        layoutBinding.playPauseButton.setImageResource(R.drawable.ic_round_play_arrow_32)
+        layoutBinding.playPauseButton.tag = getString(R.string.tag_play)
+    }
+
+    private fun showPauseButton() {
+        layoutBinding.playPauseButton.setImageResource(R.drawable.ic_round_pause_32)
+        layoutBinding.playPauseButton.tag = getString(R.string.tag_pause)
+    }
+
+    private fun hidePlayerUi() {
+        layoutBinding.root.visibility = View.GONE
+    }
+
+    private fun showPlayerUi() {
+        layoutBinding.root.visibility = View.VISIBLE
+    }
+
+    private fun setTrackProgressCurrentPosition(position: Double) {
+        val duration = MediaControllerCompat.getMediaController(requireActivity())
+            ?.metadata?.bundle?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+            ?.toDouble() ?: 0.0
+
+        if (duration > 0 && position >= 0) {
+            layoutBinding.progressBar.progress = ((position / duration) * 100).toInt()
+        } else {
+            layoutBinding.progressBar.progress = 0
+        }
     }
 }

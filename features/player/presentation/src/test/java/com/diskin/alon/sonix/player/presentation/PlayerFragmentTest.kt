@@ -9,6 +9,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.testing.FragmentScenario
@@ -59,6 +60,7 @@ class PlayerFragmentTest {
         every { anyConstructed<MediaControllerCompat>().playbackState } returns null
         every { anyConstructed<MediaControllerCompat>().metadata } returns null
         every { MediaControllerCompat.getMediaController(any()) } returns mediaController
+        every { mediaController.metadata } returns null
 
         // Launch fragment under test
         scenario = launchFragmentInContainer(themeResId = R.style.Theme_AppCompat_DayNight)
@@ -105,7 +107,7 @@ class PlayerFragmentTest {
     }
 
     @Test
-    fun showTrackData_WhenControllerMetadataChange() {
+    fun showTrackMetadata_WhenControllerMetadataChange() {
         // Given
         val trackTitle = "title"
         val trackArtist = "artist"
@@ -126,6 +128,10 @@ class PlayerFragmentTest {
             .check(matches(withText(trackTitle)))
         onView(withId(R.id.track_artist))
             .check(matches(withText(trackArtist)))
+        scenario.onFragment{
+            val artImageView = it.requireView().findViewById<ImageView>(R.id.track_art)
+            assertThat(artImageView.tag).isEqualTo(trackUri)
+        }
     }
 
     @Test
@@ -309,6 +315,30 @@ class PlayerFragmentTest {
             // Then
             val progressBar = it.requireView().findViewById<LinearProgressIndicator>(R.id.progress_bar)
 
+            assertThat(progressBar.progress).isEqualTo(progress)
+        }
+    }
+
+    @Test
+    fun updateTrackProgress_WhenPlaybackUpdates() {
+        // Given
+        val duration = 60L
+        val position = 6L
+        val progress = 10
+        val metaDataBuilder = MediaMetadataCompat.Builder()
+        val stateBuilder = PlaybackStateCompat.Builder()
+
+        metaDataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
+        every { mediaController.metadata } returns metaDataBuilder.build()
+
+        // When
+        controllerCallbackSlot.captured.onPlaybackStateChanged(stateBuilder
+            .setState(PlaybackStateCompat.STATE_PLAYING,position,0f).build())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        scenario.onFragment{
+            val progressBar = it.requireView().findViewById<LinearProgressIndicator>(R.id.progress_bar)
             assertThat(progressBar.progress).isEqualTo(progress)
         }
     }

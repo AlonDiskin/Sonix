@@ -13,7 +13,7 @@ fun createPlaylist(): SelectedPlaylist {
 }
 
 fun createAudioPlayerTrack(): AudioPlayerTrack {
-    return AudioPlayerTrack(Uri.EMPTY,true)
+    return AudioPlayerTrack(Uri.EMPTY,true,35L)
 }
 
 fun createMetadata(): TrackMetadata {

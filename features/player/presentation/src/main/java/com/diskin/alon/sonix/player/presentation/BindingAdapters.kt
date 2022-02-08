@@ -22,6 +22,8 @@ fun loadTrackArt(imageView: ImageView, uri: Uri?) {
             }
         } catch (error: Exception) {
             imageView.setImageResource(R.drawable.ic_round_music_note_48)
+        } finally {
+            imageView.tag = uri
         }
     }
 }
