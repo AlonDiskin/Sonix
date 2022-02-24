@@ -5,9 +5,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDetailDto
 import com.diskin.alon.sonix.catalog.application.usecase.GetDeviceTrackDetailUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.presentation.util.ModelTrackDetailMapper
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTrackDetailViewModel
+import com.diskin.alon.sonix.common.application.AppResult
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk

@@ -34,12 +34,12 @@ class SortTracksSteps : GreenCoffeeSteps() {
     fun user_has_public_audio_tracks_on_his_device() {
         deviceTracks = DeviceUtil.copyAudioFilesToDevice(
             listOf(
-                "assets/audio/Elvis Presley - If I Can Dream '68.mp3",
-                "assets/audio/The Beatles - Yesterday.mp3",
-                "assets/audio/Led Zeppelin - Black Dog (Official Audio).mp3",
-                "assets/audio/The Doors - The End (Live At the Isle Of Wight 1970).mp3",
-                "assets/audio/The Jimi Hendrix Experience - All Along The Watchtower (Official Audio).mp3",
-                "assets/audio/The Rolling Stones - Honky Tonk Woman (Brussels Affair, Live in 1973).mp3",
+                "assets/audio/Broke_For_Free_01_Night_Owl.mp3",
+                "assets/audio/DR_03_Sedativa_III.mp3",
+                "assets/audio/JekK_Day_Free.mp3",
+                "assets/audio/Sia_The_Greatest.mp3",
+                "assets/audio/StrangeZero_AirBook.mp3",
+                "assets/audio/The.madpix.project_Bad_Chick.mp3",
             )
         )
     }

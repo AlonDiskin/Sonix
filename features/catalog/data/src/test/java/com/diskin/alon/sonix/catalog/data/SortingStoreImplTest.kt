@@ -4,7 +4,7 @@ import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before

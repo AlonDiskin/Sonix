@@ -14,11 +14,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppError
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.FragmentAudioTracksBinding
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTracksViewModel
+import com.diskin.alon.sonix.common.application.AppError
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,7 +49,7 @@ class AudioTracksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Set tracks adapter
-        val adapter = AudioTracksAdapter(::handleTrackOptionsClick)
+        val adapter = AudioTracksAdapter(::handleTrackClick,::handleTrackOptionsClick)
         layout.tracks.adapter = adapter
 
         // Observe view model tracks
@@ -144,6 +144,15 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
+    private fun handleTrackClick(track: UiAudioTrack) {
+        val adapter = layout.tracks.adapter as AudioTracksAdapter
+
+        viewModel.playTracks(
+            adapter.currentList.indexOf(track),
+            adapter.currentList.map { it.id }
+        )
+    }
+
     private fun handleTrackOptionsClick(track: UiAudioTrack,view: View) {
         PopupMenu(requireActivity(), view).apply {
             setOnMenuItemClickListener { item ->
@@ -178,14 +187,13 @@ class AudioTracksFragment : Fragment() {
 
     private fun shareTrack(trackId: Int) {
         activity?.let {
-            val audioCollection =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    MediaStore.Audio.Media.getContentUri(
-                        MediaStore.VOLUME_EXTERNAL_PRIMARY
-                    )
-                } else {
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                }
+            val audioCollection =     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Audio.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
             val uri = Uri.parse(audioCollection.toString().plus("/$trackId"))
 
             ShareCompat.IntentBuilder(it)

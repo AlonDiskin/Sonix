@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   unit_tests:
     working_directory: ~/code
@@ -28,7 +28,19 @@ jobs:
       - store_test_results:
           path: features/catalog/presentation/build/test-results
       - store_test_results:
+          path: features/catalog/data/build/test-results
+      - store_test_results:
+          path: features/catalog/application/build/test-results
+      - store_test_results:
+          path: features/catalog/infrastructure/build/test-results
+      - store_test_results:
           path: features/settings/presentation/build/test-results
+      - store_test_results:
+          path: features/player/presentation/build/test-results
+      - store_test_results:
+          path: features/player/data/build/test-results
+      - store_test_results:
+          path: features/player/infrastructure/build/test-results
   feature_tests:
     working_directory: ~/code
     docker:
@@ -54,6 +66,41 @@ jobs:
           destination: reports
       - store_test_results:
           path: features/catalog/featureTesting/build/test-results
+  feature_android_test:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-30
+    environment:
+      JVM_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Build debug APK and release APK
+          command: ./gradlew :features:player:playeFeatureTest:assembleDebug :features:player:playeFeatureTest:assembleDebugAndroidTest --no-daemon --max-workers=2 --stacktrace
+      - run:
+          name: Store Google Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name: Authorize gcloud and set config defaults
+          command: |
+            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+      - run:
+          name: Test with Firebase Test Lab
+          command: >
+            sudo gcloud firebase test android run \
+              --type instrumentation \
+              --app features/player/playerFeatureTest/build/outputs/apk/debug/playerFeatureTest-debug.apk \
+              --test features/player/playerFeatureTest/build/outputs/apk/androidTest/debug/playerFeatureTest-debug-androidTest.apk \
   e2e_tests:
     working_directory: ~/code
     docker:
@@ -96,4 +143,8 @@ workflows:
     jobs:
       - unit_tests
       - feature_tests
-      - e2e_tests
+      - feature_android_test
+      - e2e_tests:
+          filters:
+            branches:
+              only: main

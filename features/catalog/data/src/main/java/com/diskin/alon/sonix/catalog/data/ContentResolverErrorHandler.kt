@@ -1,6 +1,6 @@
 package com.diskin.alon.sonix.catalog.data
 
-import com.diskin.alon.sonix.catalog.application.util.AppError
+import com.diskin.alon.sonix.common.application.AppError
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,7 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class ContentResolverErrorHandler @Inject constructor() {
 
-    fun handle(error: Throwable): com.diskin.alon.sonix.catalog.application.util.AppError {
-        return com.diskin.alon.sonix.catalog.application.util.AppError.DEVICE_STORAGE
+    fun handle(error: Throwable): com.diskin.alon.sonix.common.application.AppError {
+        return com.diskin.alon.sonix.common.application.AppError.DEVICE_STORAGE
     }
 }

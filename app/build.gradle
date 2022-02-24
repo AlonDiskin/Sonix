@@ -62,6 +62,7 @@ dependencies {
     implementation project(':features:home:presentation')
     implementation project(':features:catalog:di')
     implementation project(':features:settings:presentation')
+    implementation project(':features:player:di')
 
     // Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"

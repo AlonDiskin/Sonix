@@ -3,7 +3,7 @@ package com.diskin.alon.sonix.catalog.application
 import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.catalog.application.usecase.GetLastTracksSortingUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -11,9 +11,6 @@ import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 
-/**
- * [GetLastTracksSortingUseCase] unit test class.
- */
 class GetLastTracksSortingUseCaseTest {
 
     // Test subject

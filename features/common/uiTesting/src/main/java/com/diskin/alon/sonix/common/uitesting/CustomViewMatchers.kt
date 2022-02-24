@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.common.uitesting
 
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextClock
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.SearchView
@@ -100,6 +101,18 @@ fun withSearchViewQuery(query: String): Matcher<View> {
 
         override fun matchesSafely(item: SearchView): Boolean {
             return item.query.toString() == query
+        }
+    }
+}
+
+fun withImageButtonTag(tag: String): Matcher<View> {
+    return object : BoundedMatcher<View, ImageButton>(ImageButton::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("with image button tag:$tag")
+        }
+
+        override fun matchesSafely(item: ImageButton): Boolean {
+            return item.tag == tag
         }
     }
 }

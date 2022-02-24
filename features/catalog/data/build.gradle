@@ -34,7 +34,6 @@ android {
             includeAndroidResources = true
         }
     }
-    // robolectric tests config
     testOptions {
         unitTests {
             includeAndroidResources = true

@@ -10,11 +10,11 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
+            android:background="@color/pink_600"
             app:tabMode="scrollable"
-            app:tabBackground="@color/pink_600"
             app:tabTextColor="@color/white"
             app:tabIndicatorColor="@color/pink_200"
-            app:tabIndicatorHeight="5dp"
+            app:tabIndicatorHeight="4dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

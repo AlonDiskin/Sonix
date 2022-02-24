@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -131,16 +132,21 @@ object DeviceUtil {
         if (dialogShowing) {
             getDevice().findObject(UiSelector().text("OK")).click()
         }
-
     }
 
     fun checkIfDeviceHasPublicAudioTracks(): Boolean {
         val context = getApplicationContext<Context>()
         val contentResolver = context.contentResolver!!
         val tracksCount: Int
-
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
         val cursor = contentResolver.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            contentUri,
             arrayOf(MediaStore.MediaColumns._ID),
             null,
             null
@@ -155,7 +161,13 @@ object DeviceUtil {
     fun copyAudioFilesToDevice(testFilesPaths: List<String>): List<DeviceTrack> {
         val context = getApplicationContext<Context>()
         val deviceTracks = mutableListOf<DeviceTrack>()
-        val contentUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
 
         testFilesPaths.forEach { path ->
             Thread.sleep(1000)
@@ -163,7 +175,7 @@ object DeviceUtil {
             val values = ContentValues(3)
 
             values.put(MediaStore.Audio.Media.DISPLAY_NAME, path.split("/").last().trimEnd('.','m','p','3'))
-            values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg")
+            values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mpeg") // audio/mpeg
             values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Music")
 
             val resolver = context.contentResolver
@@ -182,13 +194,14 @@ object DeviceUtil {
                 fos!!.close()
             }
 
-            val trackTitle = path.split("/").last().trimEnd('.','m','p','3')
-            val trackPath = "/storage/emulated/0/Music/".plus(trackTitle).plus(".mp3")
+            val trackFileName = path.split("/").last().trimEnd('.','m','p','3')
+            val trackPath = "/storage/emulated/0/Music/".plus(trackFileName).plus(".mp3")
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(trackPath)
+            val trackTitle = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)!!
             val trackDuration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toLong()
-            val trackAlbum = "Music"
-            val trackArtist = "<unknown>"
+            val trackAlbum = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)!!
+            val trackArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)!!
             val trackMimeType = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)!!
 
             deviceTracks.add(

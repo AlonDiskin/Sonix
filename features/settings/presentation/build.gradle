@@ -39,6 +39,7 @@ dependencies {
 
     // Project modules
     implementation project(':features:common:presentation')
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

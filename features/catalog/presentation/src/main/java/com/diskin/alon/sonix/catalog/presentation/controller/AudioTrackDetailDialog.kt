@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import com.diskin.alon.sonix.catalog.application.util.AppError
+import com.diskin.alon.sonix.common.application.AppError
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.DialogAudioTrackDetailBinding
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTrackDetailViewModel
@@ -50,9 +50,9 @@ class AudioTrackDetailDialog : DialogFragment(){
         }
         viewModel.error.observe(viewLifecycleOwner) { appError ->
             when(appError) {
-                AppError.DEVICE_STORAGE ->
+                com.diskin.alon.sonix.common.application.AppError.DEVICE_STORAGE ->
                     Toast.makeText(requireContext(),getString(R.string.error_message_storage), Toast.LENGTH_LONG).show()
-                AppError.UNKNOWN_ERROR ->
+                com.diskin.alon.sonix.common.application.AppError.UNKNOWN_ERROR ->
                     Toast.makeText(requireContext(),getString(R.string.error_message_unknown), Toast.LENGTH_LONG).show()
             }
         }

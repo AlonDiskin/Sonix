@@ -1,11 +1,12 @@
 package com.diskin.alon.sonix.catalog.data
 
 import android.content.Context
+import android.os.Build
 import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppError
+import com.diskin.alon.sonix.common.application.AppError
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -53,7 +54,13 @@ class DeviceTracksStoreTest {
         // Stub test cursor
         Shadows.shadowOf(ApplicationProvider.getApplicationContext<Context>().contentResolver)
             .setCursor(
-                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.Audio.Media.getContentUri(
+                        MediaStore.VOLUME_EXTERNAL_PRIMARY
+                    )
+                } else {
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                },
                 cursor
             )
 
@@ -66,6 +73,13 @@ class DeviceTracksStoreTest {
     @Test
     fun getAllDeviceTracksSortedByDate_WhenQueried() {
         // Given
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DATA,
@@ -76,6 +90,8 @@ class DeviceTracksStoreTest {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.MIME_TYPE
             )
+        val selection = "${MediaStore.Audio.Media.MIME_TYPE} = ?"
+        val selectionArgs = arrayOf("audio/mpeg")
 
         // When
         tracksStore.getAll(AudioTracksSorting.DateAdded(false)).test()
@@ -83,12 +99,10 @@ class DeviceTracksStoreTest {
         // Then
         assertThat(cursor.closeWasCalled).isTrue()
         assertThat(cursor.sortOrder).isEqualTo("${MediaStore.Audio.Media.DATE_MODIFIED} DESC")
-        assertThat(cursor.selection).isNull()
-        assertThat(cursor.selectionArgs).isNull()
+        assertThat(cursor.selection).isEqualTo(selection)
+        assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        )
+        assertThat(cursor.uri).isEqualTo(contentUri)
 
         // When
         tracksStore.getAll(AudioTracksSorting.DateAdded(true)).test()
@@ -96,17 +110,22 @@ class DeviceTracksStoreTest {
         // Then
         assertThat(cursor.closeWasCalled).isTrue()
         assertThat(cursor.sortOrder).isEqualTo("${MediaStore.Audio.Media.DATE_MODIFIED} ASC")
-        assertThat(cursor.selection).isNull()
-        assertThat(cursor.selectionArgs).isNull()
+        assertThat(cursor.selection).isEqualTo(selection)
+        assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        )
+        assertThat(cursor.uri).isEqualTo(contentUri)
     }
 
     @Test
     fun getAllDeviceTracksSortedByArtist_WhenQueried() {
         // Given
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DATA,
@@ -117,6 +136,8 @@ class DeviceTracksStoreTest {
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.MIME_TYPE
         )
+        val selection = "${MediaStore.Audio.Media.MIME_TYPE} = ?"
+        val selectionArgs = arrayOf("audio/mpeg")
 
         // When
         tracksStore.getAll(AudioTracksSorting.ArtistName(false)).test()
@@ -124,12 +145,10 @@ class DeviceTracksStoreTest {
         // Then
         assertThat(cursor.closeWasCalled).isTrue()
         assertThat(cursor.sortOrder).isEqualTo("${MediaStore.Audio.Media.ARTIST} DESC")
-        assertThat(cursor.selection).isNull()
-        assertThat(cursor.selectionArgs).isNull()
+        assertThat(cursor.selection).isEqualTo(selection)
+        assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        )
+        assertThat(cursor.uri).isEqualTo(contentUri)
 
         // When
         tracksStore.getAll(AudioTracksSorting.ArtistName(true)).test()
@@ -137,12 +156,10 @@ class DeviceTracksStoreTest {
         // Then
         assertThat(cursor.closeWasCalled).isTrue()
         assertThat(cursor.sortOrder).isEqualTo("${MediaStore.Audio.Media.ARTIST} ASC")
-        assertThat(cursor.selection).isNull()
-        assertThat(cursor.selectionArgs).isNull()
+        assertThat(cursor.selection).isEqualTo(selection)
+        assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        )
+        assertThat(cursor.uri).isEqualTo(contentUri)
     }
 
     @Test
@@ -170,8 +187,12 @@ class DeviceTracksStoreTest {
         assertThat(cursor.selection).isEqualTo(selection)
         assertThat(cursor.selectionArgs).isEqualTo(selectionArgs)
         assertThat(cursor.projection.toSet()).isEqualTo(projection.toSet())
-        assertThat(cursor.uri).isEqualTo(
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        )
+        assertThat(cursor.uri).isEqualTo( if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        })
     }
 }

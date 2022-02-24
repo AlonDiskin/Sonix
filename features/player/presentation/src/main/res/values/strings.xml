@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_message_player">Player error</string>
+    <string name="error_message_device_storage">Device storage error</string>
+    <string name="error_message_unknown">Unknown error</string>
+    <string name="tag_play">play_button</string>
+    <string name="tag_pause">pause_button</string>
+</resources>

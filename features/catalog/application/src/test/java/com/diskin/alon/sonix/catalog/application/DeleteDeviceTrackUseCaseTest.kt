@@ -2,7 +2,7 @@ package com.diskin.alon.sonix.catalog.application
 
 import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
 import com.diskin.alon.sonix.catalog.application.usecase.DeleteDeviceTrackUseCase
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -10,9 +10,6 @@ import io.reactivex.Single
 import org.junit.Before
 import org.junit.Test
 
-/**
- * [DeleteDeviceTrackUseCase] unit test class.
- */
 class DeleteDeviceTrackUseCaseTest {
 
     // Test subject

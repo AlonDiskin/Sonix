@@ -4,8 +4,8 @@ import android.content.ContentResolver
 import android.os.Build
 import android.provider.MediaStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppResult
 import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,6 +53,8 @@ class DeviceTracksStore @Inject constructor(
                     "${MediaStore.Audio.Media.ARTIST} DESC"
                 }
             }
+            val selection = "${MediaStore.Audio.Media.MIME_TYPE} = ?"
+            val selectionArgs = arrayOf("audio/mpeg")
             val cursor = contentResolver.query(
                 contentUri,
                 arrayOf(
@@ -65,8 +67,8 @@ class DeviceTracksStore @Inject constructor(
                     columnPath,
                     columnDuration
                 ),
-                null,
-                null,
+                selection,
+                selectionArgs,
                 sortOrder)!!
 
             while (cursor.moveToNext()) {

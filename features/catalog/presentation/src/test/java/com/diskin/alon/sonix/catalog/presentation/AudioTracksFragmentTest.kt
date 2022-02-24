@@ -25,11 +25,11 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.application.util.AppError
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksAdapter.AudioTrackViewHolder
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTracksViewModel
+import com.diskin.alon.sonix.common.application.AppError
 import com.diskin.alon.sonix.common.presentation.SingleLiveEvent
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
@@ -152,7 +152,6 @@ class AudioTracksFragmentTest {
         val expectedToastMessage = ApplicationProvider.getApplicationContext<Context>()
             .getString(R.string.error_message_unknown)
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
-
     }
 
     @Test
@@ -390,5 +389,22 @@ class AudioTracksFragmentTest {
 
         // Then
         verify(exactly = 0) { viewModel.deleteTrack(uiTracks.first().id) }
+    }
+
+    @Test
+    fun playAllTracks_WhenTrackSelected() {
+        // Given
+        val uiTracks = createUiTracks()
+        tracks.value = uiTracks
+
+        every { viewModel.playTracks(any(),any()) } returns Unit
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // When
+        onView(withRecyclerView(R.id.tracks).atPosition(0))
+            .perform(click())
+
+        // Then
+        verify { viewModel.playTracks(0,uiTracks.map { it.id }) }
     }
 }

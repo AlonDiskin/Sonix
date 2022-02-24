@@ -3,7 +3,7 @@ package com.diskin.alon.sonix.catalog.data
 import android.content.ContentResolver
 import android.database.ContentObserver
 import android.net.Uri
-import com.diskin.alon.sonix.catalog.application.util.AppResult
+import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

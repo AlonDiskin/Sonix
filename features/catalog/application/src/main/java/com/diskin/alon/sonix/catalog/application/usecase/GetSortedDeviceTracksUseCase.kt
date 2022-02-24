@@ -5,6 +5,9 @@ import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDto
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.catalog.application.util.*
+import com.diskin.alon.sonix.common.application.AppResult
+import com.diskin.alon.sonix.common.application.UseCase
+import com.diskin.alon.sonix.common.application.mapAppResult
 import io.reactivex.Observable
 import javax.inject.Inject
 
