@@ -75,7 +75,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progress_bar"
-            tools:srcCompat="@drawable/ic_round_play_arrow_32" />
+            tools:srcCompat="@drawable/ic_round_play_arrow_32"
+            android:contentDescription="@string/description_play_pause_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

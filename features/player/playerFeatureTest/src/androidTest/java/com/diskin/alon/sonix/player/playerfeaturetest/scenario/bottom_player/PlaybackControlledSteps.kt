@@ -60,8 +60,8 @@ class PlaybackControlledSteps(
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
     }
 
-    @Given("^user has \"([^\"]*)\" a track$")
-    fun user_has_something_a_track(trackPlayback: String) {
+    @Given("^user selected a track$")
+    fun user_selected_a_track() {
         // Launch player fragment
         scenario = launchFragmentInContainer(themeResId = R.style.Theme_Sonix)
 
@@ -80,46 +80,44 @@ class PlaybackControlledSteps(
         EspressoIdlingResource.increment()
         playListSubject.onNext(SelectedPlaylist(0, listOf(deviceTrack.first)))
         waitForIdlingResource()
-
-        when(trackPlayback) {
-            "paused" -> onView(withId(R.id.play_pause_button))
-                .perform(click())
-            "played" -> {
-                // do nothing since track already played
-            }
-            else -> throw IllegalArgumentException("Unknown scenario argument:$trackPlayback")
-        }
     }
 
-    @When("^he \"([^\"]*)\" the track playback$")
-    fun he_something_the_track_playback(playerAction: String) {
+    @When("^he pause the track playback$")
+    fun he_pause_the_track_playback() {
         onView(withId(R.id.play_pause_button))
             .perform(click())
     }
 
-    @Then("^player should \"([^\"]*)\" the track$")
-    fun player_should_something_the_track(playerAction: String) {
+    @Then("^player should pause the playback$")
+    fun player_should_pause_the_track() {
         assertThat(exoPlayer.currentMediaItem?.localConfiguration?.uri)
             .isEqualTo(deviceTrack.first)
+        assertThat(exoPlayer.isPlaying).isFalse()
 
-        when(playerAction) {
-            "play" -> assertThat(exoPlayer.isPlaying).isTrue()
-            "pause" -> assertThat(exoPlayer.isPlaying).isFalse()
-            else -> throw IllegalArgumentException("Unknown scenario argument:$playerAction")
-        }
-
-        expectedButtonState = playerAction
-    }
-
-    @And("^display play pause control accordingly$")
-    fun display_play_pause_control_accordingly() {
         scenario.onFragment{
             val button = it.requireView().findViewById<ImageButton>(R.id.play_pause_button)
-            val tag = when(expectedButtonState) {
-                "play" -> it.requireContext().getString(R.string.tag_pause)
-                "pause" -> it.requireContext().getString(R.string.tag_play)
-                else -> throw IllegalArgumentException("Unknown expected button state:$expectedButtonState")
-            }
+            val tag = it.requireContext().getString(R.string.tag_play)
+
+            assertThat(button.tag).isEqualTo(tag)
+        }
+    }
+
+    @When("^play the track again$")
+    fun play_the_track_again() {
+        Thread.sleep(2000)
+        onView(withId(R.id.play_pause_button))
+            .perform(click())
+    }
+
+    @Then("^player should resume the playback$")
+    fun player_should_resume_the_track() {
+        assertThat(exoPlayer.currentMediaItem?.localConfiguration?.uri)
+            .isEqualTo(deviceTrack.first)
+        assertThat(exoPlayer.isPlaying).isTrue()
+
+        scenario.onFragment{
+            val button = it.requireView().findViewById<ImageButton>(R.id.play_pause_button)
+            val tag = it.requireContext().getString(R.string.tag_pause)
 
             assertThat(button.tag).isEqualTo(tag)
         }

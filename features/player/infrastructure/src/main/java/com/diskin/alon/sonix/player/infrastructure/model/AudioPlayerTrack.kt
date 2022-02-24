@@ -4,4 +4,5 @@ import android.net.Uri
 
 data class AudioPlayerTrack(val uri: Uri,
                             val isPlaying: Boolean,
-                            val position: Long)
+                            val position: Long,
+                            val restored: Boolean = false)

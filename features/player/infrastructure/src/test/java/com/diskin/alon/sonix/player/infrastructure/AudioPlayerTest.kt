@@ -227,6 +227,112 @@ class AudioPlayerTest {
     }
 
     @Test
+    fun skipAndPlayNextPlaylistTrack_WhenSkippedNextWhilePlayed() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_2.mp3"))))
+        testPlayer.prepare()
+        testPlayer.play()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.skipNext()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentMediaItemIndex).isEqualTo(1)
+        assertThat(testPlayer.isPlaying).isTrue()
+    }
+
+    @Test
+    fun skipAndPauseNextPlaylistTrack_WhenSkippedNextWhilePaused() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_2.mp3"))))
+        testPlayer.prepare()
+        testPlayer.pause()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.skipNext()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentMediaItemIndex).isEqualTo(1)
+        assertThat(testPlayer.isPlaying).isFalse()
+    }
+
+    @Test
+    fun skipAndPlayPrevPlaylistTrack_WhenSkippedPrevWhilePlayed() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_2.mp3"))))
+        testPlayer.prepare()
+        testPlayer.seekTo(1,0)
+        testPlayer.play()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.skipPrev()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentMediaItemIndex).isEqualTo(0)
+        assertThat(testPlayer.isPlaying).isTrue()
+    }
+
+    @Test
+    fun skipAndPausePrevPlaylistTrack_WhenSkippedPrevWhilePaused() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_2.mp3"))))
+        testPlayer.prepare()
+        testPlayer.seekTo(1,0)
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.skipPrev()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentMediaItemIndex).isEqualTo(0)
+        assertThat(testPlayer.isPlaying).isFalse()
+    }
+
+    @Test
+    fun seekAndPauseTrack_WhenSeekWhilePaused() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.prepare()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.seek(10L)
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentPosition).isEqualTo(10L)
+        assertThat(testPlayer.isPlaying).isFalse()
+    }
+
+    @Test
+    fun seekAndPlayTrack_WhenSeekWhilePlayed() {
+        // Given
+        testPlayer.addMediaItem(MediaItem.fromUri(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
+        testPlayer.prepare()
+        testPlayer.play()
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // When
+        player.seek(10L)
+        TestPlayerRunHelper.runUntilPlaybackState(testPlayer,Player.STATE_READY)
+
+        // Then
+        assertThat(testPlayer.currentPosition).isEqualTo(10L)
+        assertThat(testPlayer.isPlaying).isTrue()
+    }
+
+    @Test
     fun restorePlayerState_WhenCreated() {
         // Given
         val state = PlayerState(30L,0, listOf(Uri.fromFile(File("src/test/resources/track_1.mp3"))))
@@ -241,7 +347,8 @@ class AudioPlayerTest {
             AudioPlayerTrack(
                 state.tracksUri[state.trackIndex],
                 false,
-                state.playbackPosition
+                state.playbackPosition,
+                true
             )
         )
     }
