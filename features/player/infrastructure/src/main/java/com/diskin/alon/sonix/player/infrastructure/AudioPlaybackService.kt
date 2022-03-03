@@ -54,11 +54,7 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
     val sessionCallback = object : MediaSessionCompat.Callback() {
 
         override fun onPlay() {
-            if (!started) {
-                startService(Intent(applicationContext,AudioPlaybackService::class.java))
-                started = true
-            }
-
+            startService()
             player.play()
         }
 
@@ -149,7 +145,11 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
     private fun createPlayListSubscription(): Disposable {
         return playListProvider.get()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ player.playTracks(it.startIndex,it.tracks) },
+            .subscribe(
+                {
+                    startService()
+                    player.playTracks(it.startIndex,it.tracks)
+                },
                 Throwable::printStackTrace)
     }
 
@@ -244,7 +244,11 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
     private fun showPlayedTrackNotification(metadata: TrackMetadata) {
         startForeground(
             NOTIFICATION_ID,
-            notificationFactory.buildPlayedNotification(metadata,mediaSession.sessionToken)
+            notificationFactory.buildPlayedNotification(
+                metadata,
+                mediaSession.sessionToken,
+                mediaSession.controller.sessionActivity
+            )
         )
     }
 
@@ -253,9 +257,20 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
         {
             notify(
                 NOTIFICATION_ID,
-                notificationFactory.buildPausedNotification(metadata,mediaSession.sessionToken)
+                notificationFactory.buildPausedNotification(
+                    metadata,
+                    mediaSession.sessionToken,
+                    mediaSession.controller.sessionActivity
+                )
             )
         }
         stopForeground(false)
+    }
+
+    private fun startService() {
+        if (!started) {
+            startService(Intent(applicationContext,AudioPlaybackService::class.java))
+            started = true
+        }
     }
 }

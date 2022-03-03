@@ -1,9 +1,11 @@
 package com.diskin.alon.sonix.player.infrastructure
 
+import android.app.PendingIntent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -318,7 +320,11 @@ class AudioPlaybackServiceTest {
         // Given
         val track = AudioPlayerTrack(Uri.EMPTY,true,120L)
         val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
+        val pendingIntent = mockk<PendingIntent>()
+        val controller = mockk<MediaControllerCompat>()
 
+        every { controller.sessionActivity } returns pendingIntent
+        WhiteBox.setInternalState(service.mediaSession,"mController",controller)
         metadataSubject.onSuccess(AppResult.Success(metadata))
 
         // When
@@ -326,7 +332,13 @@ class AudioPlaybackServiceTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
-        verify { notificationFactory.buildPlayedNotification(metadata,service.mediaSession.sessionToken) }
+        verify {
+            notificationFactory.buildPlayedNotification(
+                metadata,
+                service.mediaSession.sessionToken,
+                pendingIntent
+            )
+        }
     }
 
     @Test
@@ -334,7 +346,11 @@ class AudioPlaybackServiceTest {
         // Given
         val track = AudioPlayerTrack(Uri.EMPTY,false,120L)
         val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
+        val controller = mockk<MediaControllerCompat>()
+        val pendingIntent = mockk<PendingIntent>()
 
+        every { controller.sessionActivity } returns pendingIntent
+        WhiteBox.setInternalState(service.mediaSession,"mController",controller)
         metadataSubject.onSuccess(AppResult.Success(metadata))
 
         // When
@@ -342,7 +358,13 @@ class AudioPlaybackServiceTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
-        verify { notificationFactory.buildPausedNotification(metadata,service.mediaSession.sessionToken) }
+        verify {
+            notificationFactory.buildPausedNotification(
+                metadata,
+                service.mediaSession.sessionToken,
+                pendingIntent
+            )
+        }
     }
 
     @Test
@@ -358,8 +380,8 @@ class AudioPlaybackServiceTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
-        verify(exactly = 0) { notificationFactory.buildPausedNotification(any(),any()) }
-        verify(exactly = 0) { notificationFactory.buildPlayedNotification(any(),any()) }
+        verify(exactly = 0) { notificationFactory.buildPausedNotification(any(),any(),any()) }
+        verify(exactly = 0) { notificationFactory.buildPlayedNotification(any(),any(),any()) }
     }
 
     @Test

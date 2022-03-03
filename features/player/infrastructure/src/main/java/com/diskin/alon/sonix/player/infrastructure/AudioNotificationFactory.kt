@@ -1,9 +1,6 @@
 package com.diskin.alon.sonix.player.infrastructure
 
-import android.app.Application
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.*
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -52,7 +49,11 @@ class AudioNotificationFactory @Inject constructor(
         }
     }
 
-    fun buildPausedNotification(metadata: TrackMetadata, sessionToken: MediaSessionCompat.Token): Notification {
+    fun buildPausedNotification(
+        metadata: TrackMetadata,
+        sessionToken: MediaSessionCompat.Token,
+        contentIntent: PendingIntent
+    ): Notification {
         return NotificationCompat.Builder(app, CHANNEL_ID).apply {
             // Add the metadata for the currently playing track
             setContentTitle(metadata.name)
@@ -61,6 +62,9 @@ class AudioNotificationFactory @Inject constructor(
 
             // Make the transport controls visible on the lockscreen
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
+            // Enable launching the player by clicking the notification
+            setContentIntent(contentIntent)
 
             // Stop the service when the notification is swiped away
             setDeleteIntent(
@@ -125,7 +129,11 @@ class AudioNotificationFactory @Inject constructor(
         }.build()
     }
 
-    fun buildPlayedNotification(metadata: TrackMetadata, sessionToken: MediaSessionCompat.Token): Notification {
+    fun buildPlayedNotification(
+        metadata: TrackMetadata,
+        sessionToken: MediaSessionCompat.Token,
+        contentIntent: PendingIntent
+    ): Notification {
         return NotificationCompat.Builder(app, CHANNEL_ID).apply {
             // Add the metadata for the currently playing track
             setContentTitle(metadata.name)
@@ -134,6 +142,9 @@ class AudioNotificationFactory @Inject constructor(
 
             // Make the transport controls visible on the lockscreen
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
+            // Enable launching the player by clicking the notification
+            setContentIntent(contentIntent)
 
             // Hide time
             setShowWhen(false)

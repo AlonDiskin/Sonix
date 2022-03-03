@@ -7,9 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.diskin.alon.sonix.home.presentation.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -19,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var graphProvider: AppGraphProvider
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var layout: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Set nav controller and navigation ui for main app graph
-        val navController = if (savedInstanceState == null) {
+        if (savedInstanceState == null) {
             val host = NavHostFragment.create(graphProvider.getAppGraph())
 
             supportFragmentManager.beginTransaction()
@@ -56,15 +52,6 @@ class MainActivity : AppCompatActivity() {
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment)
                 .navController
         }
-
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

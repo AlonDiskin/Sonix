@@ -42,7 +42,7 @@ class PlaybackControlledSteps(
 ) : GreenCoffeeSteps() {
 
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    val context = ApplicationProvider.getApplicationContext<Context>()
+    private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var scenario: FragmentScenario<PlayerFragment>
     private lateinit var exoPlayer: ExoPlayer
     private val playListSubject = BehaviorSubject.create<SelectedPlaylist>()

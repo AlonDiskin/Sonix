@@ -13,3 +13,12 @@ Feature: Status bar notification player
       | pause             | pause current track |
       | skip next         | play next track     |
       | skip prev         | play prev track     |
+
+  #Rule: Provide navigation to app player
+
+  @app-opened
+  Scenario: App opened from notification
+    Given user is listening to selected playlist
+    When he exit app
+    And click on app player notification
+    Then app should be opened

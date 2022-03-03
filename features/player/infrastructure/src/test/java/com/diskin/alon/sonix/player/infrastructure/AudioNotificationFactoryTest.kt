@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.player.infrastructure
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
@@ -11,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.player.infrastructure.model.TrackMetadata
 import com.google.common.truth.Truth.assertThat
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +49,7 @@ class AudioNotificationFactoryTest {
         val session = MediaSessionCompat(ApplicationProvider.getApplicationContext(),"tag")
 
         // When
-        val notification = factory.buildPausedNotification(trackMetadata, session.sessionToken)
+        val notification = factory.buildPausedNotification(trackMetadata, session.sessionToken, mockk())
 
         // Then
         assertThat(notification.smallIcon.resId).isEqualTo(R.drawable.ic_round_music_note_18)
@@ -91,7 +93,7 @@ class AudioNotificationFactoryTest {
         val session = MediaSessionCompat(ApplicationProvider.getApplicationContext(),"tag")
 
         // When
-        val notification = factory.buildPlayedNotification(trackMetadata, session.sessionToken)
+        val notification = factory.buildPlayedNotification(trackMetadata, session.sessionToken,mockk())
 
         // Then
         assertThat(notification.smallIcon.resId).isEqualTo(R.drawable.ic_round_music_note_18)
@@ -125,5 +127,21 @@ class AudioNotificationFactoryTest {
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT
                 )
             )
+    }
+
+    @Test
+    fun navigateToAppPlayer_WhenClicked() {
+        // Given
+        val contentIntent = mockk<PendingIntent>()
+        val trackMetadata = TrackMetadata("title","artist","album",30000L, Uri.EMPTY)
+        val session = MediaSessionCompat(ApplicationProvider.getApplicationContext(),"tag")
+
+        // When
+        val pausedNotification = factory.buildPausedNotification(trackMetadata, session.sessionToken,contentIntent)
+        val playedNotification = factory.buildPlayedNotification(trackMetadata, session.sessionToken,contentIntent)
+
+        // Then
+        assertThat(pausedNotification.contentIntent).isEqualTo(contentIntent)
+        assertThat(playedNotification.contentIntent).isEqualTo(contentIntent)
     }
 }

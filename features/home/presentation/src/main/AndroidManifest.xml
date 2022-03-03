@@ -6,6 +6,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Sonix" >
 
