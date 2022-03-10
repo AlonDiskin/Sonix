@@ -137,6 +137,7 @@ jobs:
               --app app/build/outputs/apk/debug/app-debug.apk \
               --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
               --device model=Pixel2,version=30,locale=en,orientation=portrait \
+              --use-orchestrator
 workflows:
   version: 2
   build_and_test:

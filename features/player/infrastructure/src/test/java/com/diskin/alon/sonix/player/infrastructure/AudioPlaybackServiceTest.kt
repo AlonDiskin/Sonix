@@ -1,5 +1,6 @@
 package com.diskin.alon.sonix.player.infrastructure
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.media.MediaBrowserServiceCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -25,10 +27,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.HiltTestApplication
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.SingleSubject
 import org.junit.Before
@@ -85,7 +84,7 @@ class AudioPlaybackServiceTest {
 
         // Start service under test
         service = Robolectric.setupService(AudioPlaybackService::class.java)
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        //Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test
@@ -322,7 +321,9 @@ class AudioPlaybackServiceTest {
         val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
         val pendingIntent = mockk<PendingIntent>()
         val controller = mockk<MediaControllerCompat>()
+        val notification = mockk<Notification>()
 
+        every { notificationFactory.buildPlayedNotification(any(),any(),any()) } returns notification
         every { controller.sessionActivity } returns pendingIntent
         WhiteBox.setInternalState(service.mediaSession,"mController",controller)
         metadataSubject.onSuccess(AppResult.Success(metadata))
@@ -339,6 +340,7 @@ class AudioPlaybackServiceTest {
                 pendingIntent
             )
         }
+        assertThat(Shadows.shadowOf(service).lastForegroundNotification).isEqualTo(notification)
     }
 
     @Test
@@ -348,10 +350,15 @@ class AudioPlaybackServiceTest {
         val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
         val controller = mockk<MediaControllerCompat>()
         val pendingIntent = mockk<PendingIntent>()
+        val notification = mockk<Notification>()
 
+        every { notificationFactory.buildPausedNotification(any(),any(),any()) } returns notification
         every { controller.sessionActivity } returns pendingIntent
         WhiteBox.setInternalState(service.mediaSession,"mController",controller)
         metadataSubject.onSuccess(AppResult.Success(metadata))
+
+        mockkConstructor(NotificationManagerCompat::class)
+        every { anyConstructed<NotificationManagerCompat>().notify(any(),any()) } returns Unit
 
         // When
         playerCurrentTrack.value = track
@@ -365,6 +372,7 @@ class AudioPlaybackServiceTest {
                 pendingIntent
             )
         }
+        verify { anyConstructed<NotificationManagerCompat>().notify(NOTIFICATION_ID,notification) }
     }
 
     @Test
@@ -407,5 +415,50 @@ class AudioPlaybackServiceTest {
 
         // Then
         assertThat(actual).isEqualTo(MediaBrowserServiceCompat.START_NOT_STICKY)
+    }
+
+    @Test
+    fun startForeGround_WhenShowPlayNotification() {
+        // Given
+        val track = AudioPlayerTrack(Uri.EMPTY,true,120L)
+        val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
+        val pendingIntent = mockk<PendingIntent>()
+        val controller = mockk<MediaControllerCompat>()
+
+        every { controller.sessionActivity } returns pendingIntent
+        WhiteBox.setInternalState(service.mediaSession,"mController",controller)
+        metadataSubject.onSuccess(AppResult.Success(metadata))
+
+        // When
+        playerCurrentTrack.value = track
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        assertThat(Shadows.shadowOf(service).isForegroundStopped).isFalse()
+    }
+
+    @Test
+    fun stopForeGround_WhenShowPauseNotification() {
+        // Given
+        val track = AudioPlayerTrack(Uri.EMPTY,false,120L)
+        val metadata = TrackMetadata("artist","artist","album",300L, Uri.EMPTY)
+        val controller = mockk<MediaControllerCompat>()
+        val pendingIntent = mockk<PendingIntent>()
+        val notification = mockk<Notification>()
+
+        every { notificationFactory.buildPausedNotification(any(),any(),any()) } returns notification
+        every { controller.sessionActivity } returns pendingIntent
+        WhiteBox.setInternalState(service.mediaSession,"mController",controller)
+        metadataSubject.onSuccess(AppResult.Success(metadata))
+
+        mockkConstructor(NotificationManagerCompat::class)
+        every { anyConstructed<NotificationManagerCompat>().notify(any(),any()) } returns Unit
+
+        // When
+        playerCurrentTrack.value = track
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        assertThat(Shadows.shadowOf(service).isForegroundStopped).isTrue()
     }
 }

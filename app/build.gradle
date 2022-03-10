@@ -16,6 +16,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "com.diskin.alon.sonix.util.CustomTestRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
         multiDexEnabled true
     }
 
@@ -34,6 +35,9 @@ android {
     }
     buildFeatures {
         dataBinding true
+    }
+    testOptions {
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 }
 
@@ -75,5 +79,8 @@ dependencies {
     androidTestImplementation "androidx.test.uiautomator:uiautomator:$uiautomator_version"
     androidTestImplementation "com.mauriciotogneri:greencoffee:$greencoffee_version"
     androidTestImplementation 'com.squareup.rx.idler:rx2-idler:0.11.0'
+    androidTestImplementation 'com.google.android.exoplayer:exoplayer:2.16.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestUtil 'androidx.test:orchestrator:1.4.1'
 }
 
