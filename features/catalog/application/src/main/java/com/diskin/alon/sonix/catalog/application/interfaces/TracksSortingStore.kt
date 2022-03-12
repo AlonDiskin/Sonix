@@ -4,7 +4,7 @@ import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Single
 
-interface SortingStore {
+interface TracksSortingStore {
 
     fun getLast(): Single<AppResult<AudioTracksSorting>>
 

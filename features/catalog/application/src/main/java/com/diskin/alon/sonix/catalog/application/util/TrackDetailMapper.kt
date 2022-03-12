@@ -1,7 +1,7 @@
 package com.diskin.alon.sonix.catalog.application.util
 
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDetailDto
-import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.catalog.domain.AudioTrack
 import javax.inject.Inject
 
 class TrackDetailMapper @Inject constructor() {

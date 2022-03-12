@@ -1,5 +1,7 @@
 package com.diskin.alon.sonix.catalog.presentation
 
+import android.net.Uri
+import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrack
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrackDetail
 
@@ -29,4 +31,10 @@ fun createUiTrackDetail() = UiAudioTrackDetail(
     "track_size",
     "track_duration",
     "track_format"
+)
+
+fun createUiAlbums(): List<UiAlbum> = listOf(
+    UiAlbum(1,"album_1_name","album_1_artist", Uri.EMPTY),
+    UiAlbum(2,"album_2_name","album_2_artist", Uri.EMPTY),
+    UiAlbum(3,"album_3_name","album_3_artist", Uri.EMPTY)
 )

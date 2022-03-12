@@ -37,7 +37,7 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
-            returnDefaultValues = true
+            //returnDefaultValues = true
         }
     }
 }
@@ -50,7 +50,7 @@ dependencies {
 
     // Project modules
     implementation project(':features:catalog:application')
-    implementation project(':features:catalog:core')
+    implementation project(':features:catalog:domain')
 
     // Javax
     implementation "javax.inject:javax.inject:$javax_annotation_version"
@@ -58,6 +58,6 @@ dependencies {
     // Local testing
     testImplementation project(':features:common:unitTesting')
     testImplementation project(':features:common:instrumentationTesting')
-    testImplementation "org.robolectric:robolectric:$robolectric_version"
+    testImplementation "org.robolectric:robolectric:4.7.3"
     testImplementation 'androidx.preference:preference-ktx:1.1.1'
 }

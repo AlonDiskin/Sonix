@@ -70,7 +70,7 @@ class AudioTracksFragment : Fragment() {
         menu.findItem(R.id.action_sort).isEnabled = false
 
         // Observe view model sorting state
-        viewModel.sorting.observe(viewLifecycleOwner, {
+        viewModel.sorting.observe(viewLifecycleOwner) {
             it?.let { sorting ->
                 menu.findItem(R.id.action_sort).isEnabled = true
 
@@ -80,12 +80,14 @@ class AudioTracksFragment : Fragment() {
                     menu.findItem(R.id.action_order_desc).isChecked = true
                 }
 
-                when(sorting) {
-                    is AudioTracksSorting.DateAdded -> menu.findItem(R.id.action_sort_by_date).isChecked = true
-                    is AudioTracksSorting.ArtistName -> menu.findItem(R.id.action_sort_by_artist_name).isChecked = true
+                when (sorting) {
+                    is AudioTracksSorting.DateAdded -> menu.findItem(R.id.action_sort_by_date).isChecked =
+                        true
+                    is AudioTracksSorting.ArtistName -> menu.findItem(R.id.action_sort_by_artist_name).isChecked =
+                        true
                 }
             }
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

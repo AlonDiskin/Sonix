@@ -11,14 +11,12 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 /**
- * [SortingStoreImpl] unit test.
+ * [TracksSortingStoreImpl] unit test.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [29])
-class SortingStoreImplTest {
+class TracksSortingStoreImplTest {
 
     companion object {
 
@@ -31,7 +29,7 @@ class SortingStoreImplTest {
     }
 
     // Test subject
-    private lateinit var store: SortingStoreImpl
+    private lateinit var store: TracksSortingStoreImpl
 
     // Collaborators
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
@@ -40,7 +38,7 @@ class SortingStoreImplTest {
 
     @Before
     fun setUp() {
-        store = SortingStoreImpl(sharedPreferences)
+        store = TracksSortingStoreImpl(sharedPreferences)
     }
 
     @Test

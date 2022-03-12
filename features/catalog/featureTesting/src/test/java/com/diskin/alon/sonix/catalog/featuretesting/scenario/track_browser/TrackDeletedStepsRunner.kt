@@ -1,5 +1,6 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.databinding.ViewDataBinding
 import androidx.test.filters.MediumTest
@@ -22,6 +23,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import java.util.ArrayList
+import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(CatalogEventsModule::class)
@@ -62,6 +64,10 @@ class TrackDeletedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenar
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
+
+    @Inject
+    lateinit var contentResolver: ContentResolver
+
     @Test
     fun test() {
         // Disable data binding Choreographer
@@ -70,6 +76,6 @@ class TrackDeletedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenar
         // Inject test dependencies
         hiltRule.inject()
 
-        start(TrackDeletedSteps())
+        start(TrackDeletedSteps(contentResolver))
     }
 }

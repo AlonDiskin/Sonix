@@ -1,5 +1,6 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.databinding.ViewDataBinding
 import androidx.test.filters.MediumTest
@@ -22,6 +23,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import java.util.ArrayList
+import javax.inject.Inject
 
 @HiltAndroidTest
 @UninstallModules(CatalogEventsModule::class)
@@ -55,12 +57,14 @@ class TrackSharedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenari
         }
     }
 
-    @JvmField
-    @Rule
+    @get:Rule(order = 0)
+    var hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @get:Rule
-    var hiltRule = HiltAndroidRule(this)
+    @Inject
+    lateinit var contentResolver: ContentResolver
 
     @Test
     fun test() {
@@ -70,6 +74,6 @@ class TrackSharedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenari
         // Inject test dependencies
         hiltRule.inject()
 
-        start(TrackSharedSteps())
+        start(TrackSharedSteps(contentResolver))
     }
 }

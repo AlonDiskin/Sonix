@@ -1,19 +1,19 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
+import android.database.ContentObserver
+import android.database.MatrixCursor
+import android.net.Uri
+import android.os.Build
 import android.os.Looper
+import android.provider.MediaStore
 import androidx.appcompat.app.AlertDialog
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.diskin.alon.sonix.catalog.core.AudioTrack
-import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
-import com.diskin.alon.sonix.catalog.featuretesting.util.TestSorting
-import com.diskin.alon.sonix.catalog.featuretesting.util.createTestDeviceTracks
-import com.diskin.alon.sonix.catalog.featuretesting.util.verifyTestDeviceTracksShow
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
-import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
@@ -23,41 +23,78 @@ import com.mauriciotogneri.greencoffee.annotations.Given
 import com.mauriciotogneri.greencoffee.annotations.Then
 import com.mauriciotogneri.greencoffee.annotations.When
 import io.mockk.every
-import io.mockk.mockkConstructor
+import io.mockk.slot
 import io.mockk.verify
-import io.reactivex.Single
-import io.reactivex.subjects.BehaviorSubject
 import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowAlertDialog
 
-class TrackDeletedSteps : GreenCoffeeSteps() {
+class TrackDeletedSteps(
+    private val contentResolver: ContentResolver
+) : GreenCoffeeSteps() {
 
     private lateinit var scenario: ActivityScenario<HiltTestActivity>
-    private val deviceTracks = createTestDeviceTracks()[TestSorting.DESC_DATE]!!
-    private val tracksSubject: BehaviorSubject<AppResult<List<AudioTrack>>> =
-        BehaviorSubject.createDefault(AppResult.Success(deviceTracks))
+    private val deviceTracks: MutableList<DeviceTrack> = createDeiceTracks().toMutableList()
+    private var lastDeletedId = -1
 
-    @Given("^User has public audio tracks on device$")
+    @Given("^user has public audio tracks on device$")
     fun user_has_public_audio_tracks_on_device() {
-        mockkConstructor(DeviceTracksStore::class)
-        every { anyConstructed<DeviceTracksStore>().getAll(any()) } returns tracksSubject
-        every { anyConstructed<DeviceTracksStore>().delete(deviceTracks.first().id) } answers {
-            val updatedTracks = deviceTracks.toMutableList()
+        // Create test tracks by stubbing mock content resolver
+        val observerSlot = slot<ContentObserver>()
 
-            updatedTracks.removeAt(0)
-            tracksSubject.onNext(AppResult.Success(updatedTracks))
-            Single.just(AppResult.Success(Unit))
+        every { contentResolver.query(any(),any(),any(),any(),any()) } answers {
+            val trackColumns = arrayOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.SIZE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            )
+            val cursor = MatrixCursor(trackColumns, deviceTracks.size)
+
+            deviceTracks.forEach {
+                cursor.addRow(
+                    arrayOf(
+                        it.id,
+                        it.name,
+                        it.album,
+                        it.artist,
+                        it.format,
+                        it.size,
+                        it.path,
+                        it.duration
+                    )
+                )
+            }
+
+            cursor
+        }
+        every { contentResolver.registerContentObserver(any(),any(),capture(observerSlot)) } returns Unit
+        every { contentResolver.unregisterContentObserver(any()) } returns Unit
+        every { contentResolver.delete(any(),null,null) } answers {
+            // find deleted id from given uri in cursor, remove row and update slot observer
+            val uri = args[0] as Uri
+            val id = uri.lastPathSegment!!.toInt()
+            val deletedTrack = deviceTracks.find { it.id == id }
+            val observer = observerSlot.captured
+            lastDeletedId = id
+
+            deviceTracks.remove(deletedTrack)
+            observer.onChange(true)
+            1
         }
     }
 
-    @When("^User open audio browser screen$")
+    @When("^user open audio browser screen$")
     fun user_open_audio_browser_screen() {
         scenario = launchFragmentInHiltContainer<AudioTracksFragment>()
 
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
-    @And("^User select to delete first and last listed tracks$")
+    @And("^user select to delete first and last listed tracks$")
     fun user_select_to_delete_first_and_last_listed_tracks() {
         onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
             .perform(click())
@@ -74,13 +111,29 @@ class TrackDeletedSteps : GreenCoffeeSteps() {
         Thread.sleep(2000)
     }
 
-    @Then("^App should delete selected tracks from device$")
+    @Then("^app should delete selected tracks from device$")
     fun app_should_delete_selected_tracks_from_device() {
-        verify { anyConstructed<DeviceTracksStore>().delete(deviceTracks.first().id) }
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
+        verify {
+            contentResolver.delete(
+                Uri.parse(
+                    contentUri.toString()
+                        .plus("/${lastDeletedId}")
+                ),
+                null,
+                null
+            )
+        }
     }
 
-    @And("^App should update shown listed tracks$")
+    @And("^app should update shown listed tracks$")
     fun app_should_update_shown_listed_tracks() {
-        verifyTestDeviceTracksShow((tracksSubject.value!! as AppResult.Success<List<AudioTrack>>).data)
+        verifyDeviceTracksShow(deviceTracks)
     }
 }

@@ -7,21 +7,20 @@ import com.diskin.alon.sonix.common.application.AppResult
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * Base class for implementations that provide public media items from user device.
- */
-abstract class DeviceMediaStore(
-    protected val contentResolver: ContentResolver,
-    protected val contentUri: Uri,
+@Singleton
+class DeviceMediaStoreRepository @Inject constructor(
+    private val contentResolver: ContentResolver,
     private val errorHandler: ContentResolverErrorHandler
 ) {
 
-    protected fun <T : Any> query(query: () -> (T)): Observable<AppResult<T>> {
+    fun <T : Any> query(contentUri: Uri,query: (contentResolver: ContentResolver) -> (T)): Observable<AppResult<T>> {
         return Observable.create<AppResult<T>> { emitter ->
             val observer = object : ContentObserver(null) {
                 override fun onChange(selfChange: Boolean) {
-                    emitter.onNext(AppResult.Success(query.invoke()))
+                    emitter.onNext(AppResult.Success(query.invoke(contentResolver)))
                 }
             }
 
@@ -36,14 +35,14 @@ abstract class DeviceMediaStore(
             emitter.setCancellable { contentResolver.unregisterContentObserver(observer) }
 
             // Perform query
-            emitter.onNext(AppResult.Success(query.invoke()))
+            emitter.onNext(AppResult.Success(query.invoke(contentResolver)))
 
         }.subscribeOn(Schedulers.io())
             .onErrorReturn { AppResult.Error(errorHandler.handle(it)) }
             .startWith(AppResult.Loading())
     }
 
-    fun delete(id: Int): Single<AppResult<Unit>> {
+    fun delete(contentUri: Uri,id: Int): Single<AppResult<Unit>> {
         return Single.create<AppResult<Unit>> { emitter ->
             contentResolver.delete(
                 Uri.parse(

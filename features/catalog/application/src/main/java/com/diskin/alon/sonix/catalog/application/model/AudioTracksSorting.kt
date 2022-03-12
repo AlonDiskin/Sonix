@@ -11,6 +11,9 @@ sealed class AudioTracksSorting(val ascending: Boolean) {
             return true
         }
 
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
     }
 
     class ArtistName(ascending: Boolean) : AudioTracksSorting(ascending) {
@@ -22,6 +25,9 @@ sealed class AudioTracksSorting(val ascending: Boolean) {
             return true
         }
 
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
     }
 
     override fun equals(other: Any?): Boolean {

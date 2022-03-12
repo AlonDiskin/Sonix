@@ -29,4 +29,6 @@
     <string name="message_dialog_delete_track">are you sure you wont to delete this track from device(this action can not be undone)?</string>
     <string name="title_dialog_delete_track">Delete Track</string>
     <string name="title_dialog_track_detail">Track Detail</string>
+    <string name="title_sort_albums_menu">Sort albums</string>
+    <string name="title_action_sort_album_name">Album Name</string>
 </resources>

@@ -1,7 +1,9 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.database.MatrixCursor
 import android.net.Uri
 import android.os.Build
 import android.os.Looper
@@ -13,39 +15,63 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
-import com.diskin.alon.sonix.catalog.featuretesting.util.TestSorting
-import com.diskin.alon.sonix.catalog.featuretesting.util.createTestDeviceTracks
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
-import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
 import com.google.common.truth.Truth.assertThat
 import com.mauriciotogneri.greencoffee.GreenCoffeeSteps
-import com.mauriciotogneri.greencoffee.annotations.And
 import com.mauriciotogneri.greencoffee.annotations.Given
 import com.mauriciotogneri.greencoffee.annotations.Then
 import com.mauriciotogneri.greencoffee.annotations.When
 import io.mockk.every
-import io.mockk.mockkConstructor
-import io.reactivex.Observable
 import org.robolectric.Shadows
 
-class TrackSharedSteps : GreenCoffeeSteps() {
+class TrackSharedSteps(
+    private val contentResolver: ContentResolver
+) : GreenCoffeeSteps() {
 
     private lateinit var scenario: ActivityScenario<HiltTestActivity>
-    private val deviceTracks = createTestDeviceTracks()[TestSorting.DESC_DATE]!!
+    private val deviceTracks = createDeiceTracks()
 
-    @Given("^User has public audio tracks on device$")
-    fun user_has_public_audio_tracks_on_device() {
-        mockkConstructor(DeviceTracksStore::class)
-        every { anyConstructed<DeviceTracksStore>().getAll(any()) } returns
-                Observable.just(AppResult.Success(deviceTracks))
+    init {
+        // Stub mock content resolver
+        val cursor = MatrixCursor(
+            arrayOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.SIZE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            ),
+            deviceTracks.size
+        )
+
+        deviceTracks.forEach {
+            cursor.addRow(
+                arrayOf(
+                    it.id,
+                    it.name,
+                    it.album,
+                    it.artist,
+                    it.format,
+                    it.size,
+                    it.path,
+                    it.duration
+                )
+            )
+        }
+
+        every { contentResolver.query(any(),any(),any(),any(),any()) } returns cursor
+        every { contentResolver.registerContentObserver(any(),any(),any()) } returns Unit
+        every { contentResolver.unregisterContentObserver(any()) } returns Unit
     }
 
-    @When("^User open audio browser screen$")
+    @Given("^user open audio browser screen$")
     fun user_open_audio_browser_screen() {
         // Launch audio tracks fragment
         scenario = launchFragmentInHiltContainer<AudioTracksFragment>()
@@ -54,8 +80,8 @@ class TrackSharedSteps : GreenCoffeeSteps() {
         Intents.init()
     }
 
-    @And("^select to share first listed track$")
-    fun select_to_share_first_listed_track() {
+    @When("^he select to share first listed track$")
+    fun he_select_to_share_first_listed_track() {
         onView(withRecyclerView(R.id.tracks).atPositionOnView(0, R.id.track_menu))
             .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -64,7 +90,7 @@ class TrackSharedSteps : GreenCoffeeSteps() {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
-    @Then("^App should show device sharing ui$")
+    @Then("^app should show device sharing ui$")
     fun app_should_show_device_sharing_ui() {
         val firstTrackUri = Uri.parse(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

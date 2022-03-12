@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.mockk.mockk
 import javax.inject.Singleton
 
 @Module
@@ -25,7 +26,7 @@ object TestAppModule {
     @Singleton
     @Provides
     fun provideContentResolver(): ContentResolver {
-        return ApplicationProvider.getApplicationContext<Context>().contentResolver
+        return mockk()
     }
 
     @Singleton

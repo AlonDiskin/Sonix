@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.FragmentCatalogBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -86,7 +87,7 @@ class CatalogFragment(
     private fun createCatalogFragment() {
         // Set pager
         layout.pager.adapter = PagerAdapter(requireActivity(), CatalogFragmentFactory())
-        layout.pager.offscreenPageLimit = 5
+        layout.pager.offscreenPageLimit = 1
 
         // Set tabs
         TabLayoutMediator(layout.tabLayout, layout.pager) { tab, position ->
@@ -98,23 +99,21 @@ class CatalogFragment(
                 4 -> tab.text = getString(R.string.tab_title_favorites)
             }
         }.attach()
+
+//        layout.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+//            override fun onPageSelected(position: Int) {
+//                invalidateFragmentMenus(position)
+//            }
+//        })
     }
 
-    private inner class PagerAdapter(
-        fa: FragmentActivity,
-        private val factory: CatalogFragmentFactory
-    ): FragmentStateAdapter(fa) {
-
-        override fun getItemCount(): Int {
-            return 5
+    private fun invalidateFragmentMenus(position: Int) {
+        for (i in 0 until requireActivity().supportFragmentManager.fragments.size) {
+            requireActivity().supportFragmentManager.findFragmentByTag("f".plus(i))
+                ?.setHasOptionsMenu(i == position)
         }
 
-        override fun createFragment(position: Int): Fragment {
-            return when(position) {
-                0 -> factory.create(CatalogFragmentFactory.Type.TRACKS)
-                else -> EmptyFragment()
-            }
-        }
+        requireActivity().invalidateOptionsMenu()
     }
 
     private fun showPermissionsDialog() {
@@ -134,5 +133,23 @@ class CatalogFragment(
             }
             .create()
             .show()
+    }
+
+    private inner class PagerAdapter(
+        fa: FragmentActivity,
+        private val factory: CatalogFragmentFactory
+    ): FragmentStateAdapter(fa) {
+
+        override fun getItemCount(): Int {
+            return 5
+        }
+
+        override fun createFragment(position: Int): Fragment {
+            return when(position) {
+                0 -> factory.create(CatalogFragmentFactory.Type.TRACKS)
+                1 -> factory.create(CatalogFragmentFactory.Type.ALBUMS)
+                else -> EmptyFragment()
+            }
+        }
     }
 }

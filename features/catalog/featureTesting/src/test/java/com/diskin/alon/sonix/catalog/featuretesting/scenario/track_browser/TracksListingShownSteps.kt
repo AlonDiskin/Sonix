@@ -1,56 +1,82 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
+import android.database.MatrixCursor
+import android.os.Build
 import android.os.Looper
+import android.provider.MediaStore
+import android.widget.RelativeLayout
 import androidx.test.core.app.ActivityScenario
-import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
-import com.diskin.alon.sonix.catalog.core.AudioTrack
-import com.diskin.alon.sonix.catalog.data.DeviceTracksStore
-import com.diskin.alon.sonix.catalog.featuretesting.util.TestSorting
-import com.diskin.alon.sonix.catalog.featuretesting.util.createTestDeviceTracks
-import com.diskin.alon.sonix.catalog.featuretesting.util.selectTracksUiOrderedSorting
-import com.diskin.alon.sonix.catalog.featuretesting.util.verifyTestDeviceTracksShow
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers.*
+import com.diskin.alon.sonix.catalog.presentation.R
+import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksAdapter
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTracksFragment
-import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
+import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher
+import com.diskin.alon.sonix.common.uitesting.isRecyclerViewItemsCount
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
 import com.mauriciotogneri.greencoffee.GreenCoffeeSteps
 import com.mauriciotogneri.greencoffee.annotations.Given
 import com.mauriciotogneri.greencoffee.annotations.Then
 import com.mauriciotogneri.greencoffee.annotations.When
 import io.mockk.every
-import io.mockk.mockkConstructor
-import io.reactivex.subjects.BehaviorSubject
+import org.hamcrest.CoreMatchers.allOf
+import org.hamcrest.CoreMatchers.instanceOf
 import org.robolectric.Shadows
 
-class TracksListingShownSteps : GreenCoffeeSteps() {
+class TracksListingShownSteps(
+    private val contentResolver: ContentResolver
+) : GreenCoffeeSteps() {
 
     private lateinit var scenario: ActivityScenario<HiltTestActivity>
-    private lateinit var tracksSubject: BehaviorSubject<AppResult<List<AudioTrack>>>
-    private val deviceTracks: Map<TestSorting, List<AudioTrack>> = createTestDeviceTracks()
+    private val deviceTracks = createDeiceTracks()
+    private lateinit var expected: List<DeviceTrack>
 
-    @Given("^User has public audio tracks on device$")
-    fun user_has_public_audio_tracks_on_device() {
-        // Stub test tracks
-        mockkConstructor(DeviceTracksStore::class)
-        every { anyConstructed<DeviceTracksStore>().getAll(AudioTracksSorting.DateAdded(true)) } answers {
-            tracksSubject = BehaviorSubject.createDefault(AppResult.Success(deviceTracks[TestSorting.ASC_DATE]!!))
-            tracksSubject
+    init {
+        val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         }
-        every { anyConstructed<DeviceTracksStore>().getAll(AudioTracksSorting.DateAdded(false)) } answers {
-            tracksSubject = BehaviorSubject.createDefault(AppResult.Success(deviceTracks[TestSorting.DESC_DATE]!!))
-            tracksSubject
+        val selection = "${MediaStore.Audio.Media.MIME_TYPE} = ?"
+        val selectionArgs = arrayOf("audio/mpeg")
+        val audioColumns = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.MIME_TYPE,
+            MediaStore.Audio.Media.SIZE,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION
+        )
+
+        every { contentResolver.query(contentUri,audioColumns,selection,selectionArgs,any()) } answers {
+            val tracks = when(val sort = args[4] as String) {
+                "${MediaStore.Audio.Media.DATE_MODIFIED} ASC" -> deviceTracks
+                "${MediaStore.Audio.Media.DATE_MODIFIED} DESC" -> deviceTracks.reversed()
+                "${MediaStore.Audio.Media.ARTIST} ASC" -> deviceTracks.sortedBy(DeviceTrack::artist)
+                "${MediaStore.Audio.Media.ARTIST} DESC" -> deviceTracks.sortedByDescending(DeviceTrack::artist)
+                else -> throw IllegalArgumentException("Unknown sort for media store test query:${sort}")
+            }
+
+            createAudioMediaStoreCursor(
+                tracks.map {
+                    arrayOf(it.id,it.name,it.album,it.artist,it.format,it.size,it.path,it.duration)
+                }
+            )
         }
-        every { anyConstructed<DeviceTracksStore>().getAll(AudioTracksSorting.ArtistName(true)) } answers {
-            tracksSubject = BehaviorSubject.createDefault(AppResult.Success(deviceTracks[TestSorting.ASC_ARTIST]!!))
-            tracksSubject
-        }
-        every { anyConstructed<DeviceTracksStore>().getAll(AudioTracksSorting.ArtistName(false)) } answers {
-            tracksSubject = BehaviorSubject.createDefault(AppResult.Success(deviceTracks[TestSorting.DESC_ARTIST]!!))
-            tracksSubject
-        }
+        every { contentResolver.registerContentObserver(any(),any(),any()) } returns Unit
+        every { contentResolver.unregisterContentObserver(any()) } returns Unit
     }
 
-    @When("^User open audio browser screen$")
+    @Given("^user opened audio browser screen$")
     fun user_open_audio_browser_screen() {
         // Launch audio tracks fragment
         scenario = launchFragmentInHiltContainer<AudioTracksFragment>()
@@ -58,26 +84,90 @@ class TracksListingShownSteps : GreenCoffeeSteps() {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
-    @Then("^Device public tracks should be listed by date, in descending order$")
+    @Then("^device public tracks should be listed by date, in descending order$")
     fun device_public_tracks_should_be_listed_by_date_in_descending_order() {
         // Verify expected tracks are shown in ui
-        verifyTestDeviceTracksShow(deviceTracks[TestSorting.DESC_DATE]!!)
+        verifyDeviceTracksShow(deviceTracks.reversed())
     }
 
-    @When("^User select other \"([^\"]*)\" and \"([^\"]*)\"$")
+    @When("^user select other \"([^\"]*)\" and \"([^\"]*)\"$")
     fun user_select_other_sorting_and_order(sorting: String, order: String) {
+        openTracksSortingUiMenu()
         when(sorting) {
             "date" -> {
                 when(order) {
-                    "ascending" -> selectTracksUiOrderedSorting(TestSorting.ASC_DATE)
+                    "ascending" -> {
+                        expected = deviceTracks
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_date_added)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+                        openTracksSortingUiMenu()
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_ascending)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                    }
                     else -> throw IllegalArgumentException("Unknown scenario argument:$order")
                 }
             }
 
             "artist name" -> {
                 when(order) {
-                    "descending" -> selectTracksUiOrderedSorting(TestSorting.DESC_ARTIST)
-                    "ascending" -> selectTracksUiOrderedSorting(TestSorting.ASC_ARTIST)
+                    "descending" -> {
+                        expected = deviceTracks.sortedByDescending(DeviceTrack::artist)
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_artist_name)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+                        openTracksSortingUiMenu()
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_descending)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                    }
+                    "ascending" -> {
+                        expected = deviceTracks.sortedBy(DeviceTrack::artist)
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_artist_name)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+                        openTracksSortingUiMenu()
+
+                        onView(
+                            allOf(
+                                hasDescendant(withText(R.string.title_action_sort_ascending)),
+                                instanceOf(RelativeLayout::class.java)
+                            )
+                        )
+                            .perform(click())
+                    }
                     else -> throw IllegalArgumentException("Unknown scenario argument:$order")
                 }
             }
@@ -92,40 +182,53 @@ class TracksListingShownSteps : GreenCoffeeSteps() {
         Thread.sleep(2000)
     }
 
-    @Then("^Tracks listing should be sorted by \"([^\"]*)\" in order \"([^\"]*)\"$")
+    @Then("^tracks listing should be sorted by \"([^\"]*)\" in order \"([^\"]*)\"$")
     fun tracks_listing_should_be_sorted_and_ordered_as_selected(sorting: String, order: String) {
-        when(sorting) {
-            "date" -> {
-                when(order) {
-                    "ascending" -> verifyTestDeviceTracksShow(deviceTracks[TestSorting.ASC_DATE]!!)
-                    else -> throw IllegalArgumentException("Unknown scenario argument:$order")
-                }
-            }
+        verifyExpectedTracksListingShown()
+    }
 
-            "artist name" -> {
-                when(order) {
-                    "descending" -> verifyTestDeviceTracksShow(deviceTracks[TestSorting.DESC_ARTIST]!!)
-                    "ascending" -> verifyTestDeviceTracksShow(deviceTracks[TestSorting.ASC_ARTIST]!!)
-                    else -> throw IllegalArgumentException("Unknown scenario argument:$order")
-                }
-            }
+    private fun createAudioMediaStoreCursor(values: List<Array<out Any>>): MatrixCursor {
+        val cursor = MatrixCursor(
+            arrayOf(
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.SIZE,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.DURATION
+            ),
+            values.size
+        )
 
-            else -> throw IllegalArgumentException("Unknown scenario argument:$sorting")
+        values.forEach(cursor::addRow)
+        return cursor
+    }
+
+    private fun verifyExpectedTracksListingShown() {
+        onView(withId(R.id.tracks))
+            .check(ViewAssertions.matches(isRecyclerViewItemsCount(expected.size)))
+        expected.forEachIndexed { index, track ->
+            onView(withId(R.id.tracks))
+                .perform(
+                    RecyclerViewActions.scrollToPosition<AudioTracksAdapter.AudioTrackViewHolder>(
+                        index
+                    )
+                )
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            onView(
+                RecyclerViewMatcher.withRecyclerView(R.id.tracks)
+                    .atPositionOnView(index, R.id.track_name)
+            )
+                .check(ViewAssertions.matches(withText(track.name)))
+
+            onView(
+                RecyclerViewMatcher.withRecyclerView(R.id.tracks)
+                    .atPositionOnView(index, R.id.track_artist)
+            )
+                .check(ViewAssertions.matches(withText(track.artist)))
         }
-    }
-
-    @When("^First listed track deleted from device$")
-    fun first_listed_track_deleted_from_device() {
-        val updatedList = (tracksSubject.value as AppResult.Success<List<AudioTrack>>).data.toMutableList()
-
-        updatedList.removeAt(0)
-        tracksSubject.onNext(AppResult.Success(updatedList))
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-        Thread.sleep(2000)
-    }
-
-    @Then("^Tracks listing should be updated accordingly$")
-    fun tracks_listing_should_be_updated_accordingly() {
-        verifyTestDeviceTracksShow((tracksSubject.value as AppResult.Success<List<AudioTrack>>).data)
     }
 }

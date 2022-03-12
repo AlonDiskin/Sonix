@@ -5,11 +5,12 @@ import javax.inject.Inject
 
 open class CatalogFragmentFactory @Inject constructor() {
 
-    enum class Type { TRACKS }
+    enum class Type { TRACKS, ALBUMS }
 
     fun create(type: Type): Fragment {
         return when(type) {
             Type.TRACKS -> AudioTracksFragment()
+            Type.ALBUMS -> AlbumsFragment()
         }
     }
 }

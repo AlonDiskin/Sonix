@@ -4,7 +4,7 @@ import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDetailDto
 import com.diskin.alon.sonix.catalog.application.usecase.GetDeviceTrackDetailUseCase
 import com.diskin.alon.sonix.catalog.application.util.TrackDetailMapper
-import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.catalog.domain.AudioTrack
 import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
 import io.mockk.mockk

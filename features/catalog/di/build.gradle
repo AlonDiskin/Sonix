@@ -40,7 +40,7 @@ dependencies {
 
     // Project modules
     api project(':features:catalog:data')
-    api project(':features:catalog:core')
+    api project(':features:catalog:domain')
     api project(':features:catalog:application')
     api project(':features:catalog:presentation')
     api project(':features:catalog:events')

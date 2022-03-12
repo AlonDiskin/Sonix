@@ -1,6 +1,6 @@
 package com.diskin.alon.sonix.catalog.application
 
-import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
+import com.diskin.alon.sonix.catalog.application.interfaces.TracksSortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.catalog.application.usecase.GetLastTracksSortingUseCase
 import com.diskin.alon.sonix.common.application.AppResult
@@ -17,7 +17,7 @@ class GetLastTracksSortingUseCaseTest {
     private lateinit var useCase: GetLastTracksSortingUseCase
 
     // Collaborators
-    private val sortingStore: SortingStore = mockk()
+    private val sortingStore: TracksSortingStore = mockk()
 
     @Before
     fun setUp() {

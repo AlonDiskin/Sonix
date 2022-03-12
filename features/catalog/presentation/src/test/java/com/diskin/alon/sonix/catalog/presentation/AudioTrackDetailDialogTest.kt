@@ -35,7 +35,7 @@ import org.robolectric.annotation.LooperMode
 @RunWith(AndroidJUnit4::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 @SmallTest
-@Config(sdk = [29])
+@Config(instrumentedPackages = ["androidx.loader.content"])
 class AudioTrackDetailDialogTest {
 
     // Test subject
