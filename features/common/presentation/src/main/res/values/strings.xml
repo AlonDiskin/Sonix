@@ -2,4 +2,6 @@
 <resources>
     <string name="uri_settings">android-app://com.diskin.alon.sonix/settings</string>
     <string name="app_name">Sonix</string>
+    <string name="settings_parent_activity">com.diskin.alon.sonix.home.presentation.MainActivity</string>
+    <string name="player_parent_activity">com.diskin.alon.sonix.home.presentation.MainActivity</string>
 </resources>

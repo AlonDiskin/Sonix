@@ -2,4 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.diskin.alon.sonix.player.presentation">
 
+    <application>
+        <activity
+            android:name=".PlayerActivity"
+            android:exported="true"
+            android:label="@string/title_activity_player"
+            android:parentActivityName="com.diskin.alon.sonix.home.presentation.MainActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Sonix" />
+    </application>
+
 </manifest>

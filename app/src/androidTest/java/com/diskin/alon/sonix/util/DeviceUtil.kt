@@ -78,8 +78,12 @@ object DeviceUtil {
         UiDevice.getInstance(getInstrumentation()).pressBack()
     }
 
-    private fun getDevice(): UiDevice {
+    fun getDevice(): UiDevice {
         return UiDevice.getInstance(getInstrumentation())
+    }
+
+    fun openNotifications() {
+        getDevice().openNotification()
     }
 
     fun grantStorageAccessPermission() {
@@ -242,9 +246,10 @@ object DeviceUtil {
     fun clearSharedPrefs() {
         val context = getApplicationContext<Context>()
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = prefs.edit()
-        editor.clear()
-        editor.commit()
+
+        prefs.edit()
+            .clear()
+            .apply()
     }
 
     data class DeviceTrack(val title:String,

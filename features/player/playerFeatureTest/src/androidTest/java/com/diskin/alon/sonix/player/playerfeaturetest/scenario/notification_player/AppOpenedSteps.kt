@@ -1,16 +1,24 @@
-package com.diskin.alon.sonix.player.playerfeaturetest.scenario.bottom_player
+package com.diskin.alon.sonix.player.playerfeaturetest.scenario.notification_player
 
+import android.app.ActivityManager
 import android.content.ContentResolver
+import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.database.MatrixCursor
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.ImageButton
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.preference.PreferenceManager
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import com.diskin.alon.sonix.catalog.events.SelectedPlayListProvider
 import com.diskin.alon.sonix.catalog.events.SelectedPlaylist
 import com.diskin.alon.sonix.player.infrastructure.AudioPlaybackService
@@ -29,22 +37,33 @@ import io.mockk.every
 import io.reactivex.subjects.BehaviorSubject
 import java.io.File
 
-class PlaybackControlledSteps(
+class AppOpenedSteps(
     private val playlistProvider: SelectedPlayListProvider,
     private val contentResolver: ContentResolver
 ) : GreenCoffeeSteps() {
 
+    private lateinit var service: AudioPlaybackService
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var scenario: FragmentScenario<PlayerFragment>
     private lateinit var exoPlayer: ExoPlayer
-    private lateinit var expectedButtonState: String
     private val playListSubject = BehaviorSubject.create<SelectedPlaylist>()
-    private val deviceTrack = Pair(
-        Uri.fromFile(File("//android_asset/audio/track_1.mp3")),
-        arrayOf("title_1", "artist_1", "album_1", 12000L)
+    private val deviceTracks = mapOf(
+        Pair(
+            Uri.fromFile(File("//android_asset/audio/track_1.mp3")),
+            arrayOf("title_1", "artist_1", "album_1", 12000L)
+        ),
+        Pair(
+            Uri.fromFile(File("//android_asset/audio/track_2.mp3")),
+            arrayOf("title_2", "artist_2", "album_2", 12000L)
+        ),
+        Pair(
+            Uri.fromFile(File("//android_asset/audio/track_3.mp3")),
+            arrayOf("title_3", "artist_3", "album_3", 12000L)
+        )
     )
 
     init {
-        // Stub mocked collaborators
         val columns = arrayOf(
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.ALBUM,
@@ -52,22 +71,24 @@ class PlaybackControlledSteps(
             MediaStore.Audio.Media.DURATION
         )
 
-        every { contentResolver.query(deviceTrack.first,columns,null,null,null)
-        } returns createMetadataCursor(deviceTrack.second)
         every { playlistProvider.get() } returns playListSubject
-
-        // Register espresso idling resource
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
+        deviceTracks.keys.forEach { uri ->
+            every { contentResolver.query(uri,columns,null,null,null)
+            } returns createMetadataCursor(deviceTracks[uri])
+        }
+
+        clearSharedPrefs()
     }
 
-    @Given("^user selected a track$")
-    fun user_selected_a_track() {
+    @Given("^user is listening to selected playlist$")
+    fun user_is_listening_to_selected_playlist() {
         // Launch player fragment
         scenario = launchFragmentInContainer(themeResId = R.style.Theme_Sonix)
 
         // Get exoPLayer instance from service audio player
         waitForAudioServiceCreation()
-        val service = AudioPlaybackService.service!!
+        service = AudioPlaybackService.service!!
         exoPlayer = WhiteBox.getInternalState(service.player,"exoPlayer") as ExoPlayer
         exoPlayer.setThrowsWhenUsingWrongThread(false)
 
@@ -78,49 +99,32 @@ class PlaybackControlledSteps(
             }
         }
         EspressoIdlingResource.increment()
-        playListSubject.onNext(SelectedPlaylist(0, listOf(deviceTrack.first)))
+        playListSubject.onNext(SelectedPlaylist(0, deviceTracks.keys.toList()))
         waitForIdlingResource()
     }
 
-    @When("^he pause the track playback$")
-    fun he_pause_the_track_playback() {
-        onView(withId(R.id.play_pause_button))
-            .perform(click())
-    }
-
-    @Then("^player should pause the playback$")
-    fun player_should_pause_the_track() {
-        assertThat(exoPlayer.currentMediaItem?.localConfiguration?.uri)
-            .isEqualTo(deviceTrack.first)
-        assertThat(exoPlayer.isPlaying).isFalse()
-
-        scenario.onFragment{
-            val button = it.requireView().findViewById<ImageButton>(R.id.play_pause_button)
-            val tag = it.requireContext().getString(R.string.tag_play)
-
-            assertThat(button.tag).isEqualTo(tag)
-        }
-    }
-
-    @When("^play the track again$")
-    fun play_the_track_again() {
+    @When("^he exit app$")
+    fun he_exit_app() {
+        device.pressBack()
         Thread.sleep(2000)
-        onView(withId(R.id.play_pause_button))
-            .perform(click())
     }
 
-    @Then("^player should resume the playback$")
-    fun player_should_resume_the_track() {
-        assertThat(exoPlayer.currentMediaItem?.localConfiguration?.uri)
-            .isEqualTo(deviceTrack.first)
-        assertThat(exoPlayer.isPlaying).isTrue()
+    @And("^click on app player notification$")
+    fun click_on_app_player_notification() {
+        device.openNotification()
+        Thread.sleep(2000)
+        device.findObject(
+            UiSelector()
+            .text("title_1"))
+            .click()
+        Thread.sleep(2000)
+    }
 
-        scenario.onFragment{
-            val button = it.requireView().findViewById<ImageButton>(R.id.play_pause_button)
-            val tag = it.requireContext().getString(R.string.tag_pause)
-
-            assertThat(button.tag).isEqualTo(tag)
-        }
+    @Then("^app should be opened$")
+    fun app_should_be_opened() {
+        val am = context.getSystemService(ACTIVITY_SERVICE)  as ActivityManager
+        assertThat(am.appTasks[0].taskInfo.topActivity?.packageName)
+            .isEqualTo(service.mediaSession.controller.sessionActivity.creatorPackage)
     }
 
     private fun createMetadataCursor(values: Array<out Any>?): MatrixCursor {
@@ -136,6 +140,14 @@ class PlaybackControlledSteps(
 
         cursor.addRow(values)
         return cursor
+    }
+
+    private fun clearSharedPrefs() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = prefs.edit()
+        editor.clear()
+        editor.apply()
     }
 
     private fun waitForIdlingResource() {

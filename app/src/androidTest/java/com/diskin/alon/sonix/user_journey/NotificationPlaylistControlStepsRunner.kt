@@ -19,14 +19,14 @@ import java.util.*
 @HiltAndroidTest
 @RunWith(Parameterized::class)
 @LargeTest
-class EngageTrackOptionsStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario)  {
+class NotificationPlaylistControlStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario)  {
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun scenarios(): Iterable<ScenarioConfig> {
             return GreenCoffeeConfig()
-                .withFeatureFromAssets("assets/feature/engage_track_options.feature")
+                .withFeatureFromAssets("assets/feature/notification_playlist_control.feature")
                 .scenarios()
         }
     }
@@ -40,7 +40,7 @@ class EngageTrackOptionsStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )!!
 
-    private val testSteps = EngageTrackOptionsSteps()
+    private val testSteps = NotificationPlaylistControlSteps()
 
     @Test
     fun test() {
@@ -50,6 +50,9 @@ class EngageTrackOptionsStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(
     override fun afterScenarioEnds(scenario: Scenario?, locale: Locale?) {
         super.afterScenarioEnds(scenario, locale)
         DeviceUtil.clearSharedPrefs()
+        DeviceUtil.deleteFilesFromDevice(
+            testSteps.deviceTracks.map { it.path }
+        )
         DeviceUtil.deleteFromMediaStore(
             testSteps.deviceTracks.map { it.uri }
         )

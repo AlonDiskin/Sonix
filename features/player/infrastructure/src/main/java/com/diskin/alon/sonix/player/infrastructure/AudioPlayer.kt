@@ -45,11 +45,11 @@ class AudioPlayer @Inject constructor(
     private val _currentTrack = MutableLiveData<AudioPlayerTrack?>()
     val currentTrack: LiveData<AudioPlayerTrack?> get() = _currentTrack
     val error = SingleLiveEvent<AppError>()
+    private var restored = false
     private val progressUpdater = AudioProgressUpdater(exoPlayer)
     { EventBus.getDefault().post(AudioProgressEvent(it)) }
 
     init {
-        println("STEP_1:INIT_PLAYER")
         restorePlayerState()
     }
 
@@ -89,6 +89,21 @@ class AudioPlayer @Inject constructor(
     }
 
     @MainThread
+    fun skipNext() {
+        exoPlayer.seekToNextMediaItem()
+    }
+
+    @MainThread
+    fun skipPrev() {
+        exoPlayer.seekToPreviousMediaItem()
+    }
+
+    @MainThread
+    fun seek(position: Long) {
+        exoPlayer.seekTo(position)
+    }
+
+    @MainThread
     private fun savePlayerState() {
         if (exoPlayer.mediaItemCount > 0) {
             stateCache.save(
@@ -120,8 +135,14 @@ class AudioPlayer @Inject constructor(
     private fun updatePlayerTrackAudio() {
         if (exoPlayer.mediaItemCount > 0) {
             exoPlayer.currentMediaItem?.localConfiguration?.let {
-                val update = AudioPlayerTrack(it.uri,exoPlayer.isPlaying,exoPlayer.currentPosition)
+                val update = AudioPlayerTrack(
+                    it.uri,
+                    exoPlayer.isPlaying,
+                    exoPlayer.currentPosition,
+                    restored
+                )
                 if (_currentTrack.value != update) _currentTrack.value = update
+                restored = false
             } ?: run {
                 error.value = AppError.INTERNAL_ERROR
             }
@@ -195,7 +216,7 @@ class AudioPlayer @Inject constructor(
         stateCache.get()
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                println("STEP_2:RESTORE_PLAYER")
+                restored = true
                 if (exoPlayer.mediaItemCount == 0 && it.tracksUri.isNotEmpty()) {
                     exoPlayer.stop()
                     exoPlayer.clearMediaItems()

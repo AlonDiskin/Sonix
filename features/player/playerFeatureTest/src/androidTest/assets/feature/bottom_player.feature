@@ -19,15 +19,12 @@ Feature: App bottom player
   #Rule: Control tracks playback from ui bottom player
 
     @playback-controlled
-    Scenario Outline: Track playback controlled
-      Given user has "<track playback>" a track
-      When he "<player action>" the track playback
-      Then player should "<player action>" the track
-      And display play pause control accordingly
-      Examples:
-        | track playback | player action |
-        | paused         | play          |
-        | played         | pause         |
+    Scenario: Track playback controlled
+      Given user selected a track
+      When he pause the track playback
+      Then player should pause the playback
+      When play the track again
+      Then player should resume the playback
 
   #Rule: Play a user selected play list
 

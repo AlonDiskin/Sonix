@@ -1,6 +1,7 @@
 package com.diskin.alon.sonix.player.infrastructure
 
 import android.app.PendingIntent
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -8,6 +9,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.annotation.VisibleForTesting
+import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.diskin.alon.sonix.catalog.events.SelectedPlayListProvider
 import com.diskin.alon.sonix.common.application.AppError
@@ -25,6 +27,7 @@ import javax.inject.Inject
 const val MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id"
 const val LOG_TAG = "AudioPlaybackService"
 const val KEY_SERVICE_ERROR = "audio_service_error"
+const val NOTIFICATION_ID = 100
 
 @AndroidEntryPoint
 class AudioPlaybackService : MediaBrowserServiceCompat() {
@@ -40,13 +43,18 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
     lateinit var player: AudioPlayer
     @Inject
     lateinit var metadataStore: TrackMetadataStore
+    @Inject
+    lateinit var notificationFactory: AudioNotificationFactory
     private val audioTrackSubject = BehaviorSubject.create<AudioPlayerTrack>()
     @VisibleForTesting
     lateinit var mediaSession: MediaSessionCompat
     @VisibleForTesting
+    var started = false
+    @VisibleForTesting
     val sessionCallback = object : MediaSessionCompat.Callback() {
 
         override fun onPlay() {
+            startService()
             player.play()
         }
 
@@ -55,15 +63,19 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
         }
 
         override fun onStop() {
+            stopSelf()
         }
 
         override fun onSkipToNext() {
+            player.skipNext()
         }
 
         override fun onSkipToPrevious() {
+            player.skipPrev()
         }
 
         override fun onSeekTo(pos: Long) {
+            player.seek(pos)
         }
     }
     @VisibleForTesting
@@ -95,22 +107,15 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
         // Observe player track state
         player.currentTrack.observeForever { track ->
             // Check if player update for track or empty track(null)
-            track?.let {
-                // Check if player track is same as currently in subject
-                if (track.uri != audioTrackSubject.value?.uri) {
-                    // Not same tracks,update subject to trigger fresh metadata update
-                    audioTrackSubject.onNext(track)
-                } else {
-                    // Same track,no need to reload metadata,just update playback state
-                    updatePlaybackState(track)
-                }
-            } ?: run {
-                updateServiceHasNoTrack()
-            }
+            track?.let { audioTrackSubject.onNext(track) } ?: run { updatePlayerHasNoTrack() }
         }
 
         // Observer player error state
         player.error.observeForever(::handlePlayerError)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        return START_NOT_STICKY
     }
 
     override fun onGetRoot(
@@ -140,7 +145,11 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
     private fun createPlayListSubscription(): Disposable {
         return playListProvider.get()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ player.playTracks(it.startIndex,it.tracks) },
+            .subscribe(
+                {
+                    startService()
+                    player.playTracks(it.startIndex,it.tracks)
+                },
                 Throwable::printStackTrace)
     }
 
@@ -182,7 +191,7 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
         mediaSession.setPlaybackState(stateBuilder.build())
     }
 
-    private fun updateServiceHasNoTrack() {
+    private fun updatePlayerHasNoTrack() {
         val metaDataBuilder = MediaMetadataCompat.Builder()
         val stateBuilder = PlaybackStateCompat.Builder()
 
@@ -212,6 +221,13 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
             is AppResult.Success -> {
                 updateSessionMetaData(result.data)
                 updatePlaybackState(pair.first)
+
+                if (!pair.first.restored) {
+                    when(pair.first.isPlaying) {
+                        true -> showPlayedTrackNotification(result.data)
+                        false -> showPausedTrackNotification(result.data)
+                    }
+                }
             }
             is AppResult.Error -> updateServiceErrorToSessionObservers(result.error)
         }
@@ -223,5 +239,38 @@ class AudioPlaybackService : MediaBrowserServiceCompat() {
 
     private fun updateServiceErrorToSessionObservers(error: AppError) {
         mediaSession.setExtras(Bundle().apply { putString(KEY_SERVICE_ERROR,error.name) })
+    }
+
+    private fun showPlayedTrackNotification(metadata: TrackMetadata) {
+        startForeground(
+            NOTIFICATION_ID,
+            notificationFactory.buildPlayedNotification(
+                metadata,
+                mediaSession.sessionToken,
+                mediaSession.controller.sessionActivity
+            )
+        )
+    }
+
+    private fun showPausedTrackNotification(metadata: TrackMetadata) {
+        with(NotificationManagerCompat.from(applicationContext))
+        {
+            notify(
+                NOTIFICATION_ID,
+                notificationFactory.buildPausedNotification(
+                    metadata,
+                    mediaSession.sessionToken,
+                    mediaSession.controller.sessionActivity
+                )
+            )
+        }
+        stopForeground(false)
+    }
+
+    private fun startService() {
+        if (!started) {
+            startService(Intent(applicationContext,AudioPlaybackService::class.java))
+            started = true
+        }
     }
 }

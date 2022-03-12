@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:foreground="?android:attr/selectableItemBackground"
         tools:visibility="visible">
 
         <ImageView
@@ -75,7 +76,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progress_bar"
-            tools:srcCompat="@drawable/ic_round_play_arrow_32" />
+            tools:srcCompat="@drawable/ic_round_play_arrow_32"
+            android:contentDescription="@string/description_play_pause_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

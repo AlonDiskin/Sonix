@@ -5,4 +5,6 @@
     <string name="error_message_unknown">Unknown error</string>
     <string name="tag_play">play_button</string>
     <string name="tag_pause">pause_button</string>
+    <string name="description_play_pause_button">play pause button</string>
+    <string name="title_activity_player">Player</string>
 </resources>

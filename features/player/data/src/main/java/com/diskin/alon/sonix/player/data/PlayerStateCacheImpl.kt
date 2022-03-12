@@ -1,7 +1,9 @@
 package com.diskin.alon.sonix.player.data
 
+import android.content.ContentResolver
 import android.content.SharedPreferences
 import android.net.Uri
+import android.provider.MediaStore
 import androidx.annotation.VisibleForTesting
 import com.diskin.alon.sonix.player.infrastructure.interfaces.PlayerStateCache
 import com.diskin.alon.sonix.player.infrastructure.model.PlayerState
@@ -10,7 +12,10 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class PlayerStateCacheImpl @Inject constructor(private val sp: SharedPreferences)  : PlayerStateCache {
+class PlayerStateCacheImpl @Inject constructor(
+    private val sp: SharedPreferences,
+    private val contentResolver: ContentResolver
+)  : PlayerStateCache {
 
     companion object {
         @VisibleForTesting
@@ -36,6 +41,7 @@ class PlayerStateCacheImpl @Inject constructor(private val sp: SharedPreferences
                         state.playbackPosition,
                         state.trackIndex,
                         state.tracksUri.map { Uri.parse(it) }
+                            //.filter { existOnDevice(it) }
                     )
                 )
             }
@@ -56,5 +62,21 @@ class PlayerStateCacheImpl @Inject constructor(private val sp: SharedPreferences
                 )
             )
             .apply()
+    }
+
+    private fun existOnDevice(uri: Uri): Boolean {
+        val selection = "${MediaStore.Audio.Media._ID} = ?"
+        val selectionArgs = arrayOf(uri.lastPathSegment)
+        val columnId = MediaStore.Audio.Media._ID
+        val cursor = contentResolver.query(
+            uri,
+            arrayOf(columnId),
+            selection,
+            selectionArgs,
+            null)!!
+        val exist = cursor.count == 1
+
+        cursor.close()
+        return exist
     }
 }

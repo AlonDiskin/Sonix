@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.diskin.alon.sonix.common.application.AppError
 import com.diskin.alon.sonix.player.infrastructure.AudioPlaybackService
 import com.diskin.alon.sonix.player.infrastructure.KEY_SERVICE_ERROR
@@ -107,7 +108,7 @@ class PlayerFragment : Fragment() {
             requireContext(),
             ComponentName(requireContext(), AudioPlaybackService::class.java),
             connectionCallbacks,
-            null // optional Bundle
+            null
         )
     }
 
@@ -130,6 +131,10 @@ class PlayerFragment : Fragment() {
                     }
                 }
             }
+        }
+
+        layoutBinding.root.setOnClickListener {
+            findNavController().navigate(R.id.action_playerFragment_to_playerActivity)
         }
     }
 

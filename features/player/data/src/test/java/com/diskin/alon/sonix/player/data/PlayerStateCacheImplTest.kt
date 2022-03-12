@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.diskin.alon.sonix.player.infrastructure.model.PlayerState
 import com.google.common.truth.Truth.assertThat
+import io.mockk.mockk
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before
@@ -37,7 +38,7 @@ class PlayerStateCacheImplTest {
     @Before
     fun setUp() {
         // Init subject
-        cache = PlayerStateCacheImpl(sp)
+        cache = PlayerStateCacheImpl(sp, mockk())
     }
 
     @Test
