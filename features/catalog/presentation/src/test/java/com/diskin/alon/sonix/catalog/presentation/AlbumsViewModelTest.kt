@@ -7,7 +7,7 @@ import com.diskin.alon.sonix.catalog.application.model.AlbumsRequest
 import com.diskin.alon.sonix.catalog.application.model.AlbumsResponse
 import com.diskin.alon.sonix.catalog.application.usecase.GetAlbumsUseCase
 import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
-import com.diskin.alon.sonix.catalog.presentation.util.ModelAlbumMapper
+import com.diskin.alon.sonix.catalog.presentation.util.ModelAlbumsMapper
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AlbumsViewModel
 import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
@@ -52,7 +52,7 @@ class AlbumsViewModelTest {
 
     // Collaborators
     private val getAlbums: GetAlbumsUseCase = mockk()
-    private val mapper: ModelAlbumMapper = mockk()
+    private val mapper: ModelAlbumsMapper = mockk()
 
     // Stub data
     private val albumsSubject = BehaviorSubject.create<AppResult<AlbumsResponse>>()

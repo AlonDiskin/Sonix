@@ -11,7 +11,9 @@ import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
 /**
  * [UiAlbum]s adapter.
  */
-class AlbumsAdapter : ListAdapter<UiAlbum, AlbumsAdapter.AlbumViewHolder>(
+class AlbumsAdapter(
+    private val albumClickListener: (UiAlbum) -> (Unit)
+) : ListAdapter<UiAlbum, AlbumsAdapter.AlbumViewHolder>(
     DIFF_CALLBACK
 ){
 
@@ -33,7 +35,7 @@ class AlbumsAdapter : ListAdapter<UiAlbum, AlbumsAdapter.AlbumViewHolder>(
             parent,
             false)
 
-        return AlbumViewHolder(binding)
+        return AlbumViewHolder(binding,albumClickListener)
     }
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
@@ -41,8 +43,13 @@ class AlbumsAdapter : ListAdapter<UiAlbum, AlbumsAdapter.AlbumViewHolder>(
     }
 
     class AlbumViewHolder(
-        private val binding: AlbumBinding
+        private val binding: AlbumBinding,
+        albumClickListener: (UiAlbum) -> (Unit)
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.albumClickListener = albumClickListener
+        }
 
         fun bind(album: UiAlbum) {
             binding.album = album

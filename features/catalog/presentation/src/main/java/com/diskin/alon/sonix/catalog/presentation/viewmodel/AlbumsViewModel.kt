@@ -6,7 +6,7 @@ import com.diskin.alon.sonix.catalog.application.model.AlbumSorting
 import com.diskin.alon.sonix.catalog.application.model.AlbumsRequest
 import com.diskin.alon.sonix.catalog.application.usecase.GetAlbumsUseCase
 import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
-import com.diskin.alon.sonix.catalog.presentation.util.ModelAlbumMapper
+import com.diskin.alon.sonix.catalog.presentation.util.ModelAlbumsMapper
 import com.diskin.alon.sonix.common.application.AppResult
 import com.diskin.alon.sonix.common.application.mapAppResult
 import com.diskin.alon.sonix.common.presentation.RxViewModel
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AlbumsViewModel @Inject constructor(
     private val getAlbums: GetAlbumsUseCase,
-    private val mapper: ModelAlbumMapper
+    private val mapper: ModelAlbumsMapper
 ) : RxViewModel() {
 
     private val _albums = MutableLiveData<List<UiAlbum>>()

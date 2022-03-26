@@ -84,4 +84,19 @@ class AudioTrackRepositoryImplTest {
         // Then
         observer.assertValue(storeResult)
     }
+
+    @Test
+    fun getAlbumTracksFromDevice_WhenQueried() {
+        // Given
+        val id = 1
+        val storeResult = mockk<AppResult.Success<List<AudioTrack>>>()
+
+        every { mediaRepository.query(contentUri,any<((contentResolver: ContentResolver) -> (List<AudioTrack>))>()) } returns Observable.just(storeResult)
+
+        // When
+        val observer = repository.getByAlbumId(id).test()
+
+        // Then
+        observer.assertValue(storeResult)
+    }
 }

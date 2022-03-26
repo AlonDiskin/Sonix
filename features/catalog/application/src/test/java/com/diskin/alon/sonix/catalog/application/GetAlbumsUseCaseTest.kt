@@ -7,7 +7,7 @@ import com.diskin.alon.sonix.catalog.application.model.AlbumSorting
 import com.diskin.alon.sonix.catalog.application.model.AlbumsRequest
 import com.diskin.alon.sonix.catalog.application.model.AlbumsResponse
 import com.diskin.alon.sonix.catalog.application.usecase.GetAlbumsUseCase
-import com.diskin.alon.sonix.catalog.application.util.AlbumMapper
+import com.diskin.alon.sonix.catalog.application.util.AlbumsMapper
 import com.diskin.alon.sonix.catalog.domain.Album
 import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
@@ -26,7 +26,7 @@ class GetAlbumsUseCaseTest {
     // Collaborators
     private val sortingStore: AlbumsSortingStore = mockk()
     private val repository: AlbumRepository = mockk()
-    private val mapper: AlbumMapper = mockk()
+    private val mapper: AlbumsMapper = mockk()
 
     @Before
     fun setUp() {

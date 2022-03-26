@@ -49,7 +49,7 @@ fun <T : Any, R : Any> Observable<AppResult<T>>.flatMapAppResult(mapper: (T) -> 
         when(it) {
             is AppResult.Success -> mapper.invoke(it.data)
             is AppResult.Error -> Observable.just(
-                com.diskin.alon.sonix.common.application.AppResult.Error(
+                AppResult.Error(
                     it.error
                 )
             )

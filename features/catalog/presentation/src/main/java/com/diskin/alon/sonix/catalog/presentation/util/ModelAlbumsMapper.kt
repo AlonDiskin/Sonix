@@ -5,7 +5,7 @@ import com.diskin.alon.sonix.catalog.application.model.AlbumDto
 import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
 import javax.inject.Inject
 
-class ModelAlbumMapper @Inject constructor() {
+class ModelAlbumsMapper @Inject constructor() {
 
     fun map(albums: List<AlbumDto>): List<UiAlbum> = albums.map {
         UiAlbum(

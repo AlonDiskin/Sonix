@@ -11,7 +11,7 @@ fun loadAlbumArt(imageView: ImageView, uri: Uri?) {
     ImageLoader.loadImage(
         imageView.context,
         uri,
-        R.drawable.ic_outline_music_note_24,
+        R.drawable.ic_round_music_note_24,
         imageView
     )
 }

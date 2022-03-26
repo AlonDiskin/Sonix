@@ -8,4 +8,6 @@ import io.reactivex.Observable
 interface AlbumRepository {
 
     fun getAll(sorting: AlbumSorting): Observable<AppResult<List<Album>>>
+
+    fun get(id: Int): Observable<AppResult<Album>>
 }

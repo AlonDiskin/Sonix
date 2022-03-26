@@ -27,4 +27,20 @@ Feature: Device tracks albums browser
       | artist  | ascending  |
       | artist  | descending |
 
+  #Rule: Album detail shown
+
+  @detail-shown
+  Scenario: Album detail shown
+    Given user selected an album from browser listing
+    Then album detail should be shown
+
+  #Rule: Album track played
+
+  @track-played
+  Scenario: Album track played
+    Given user selected an album from browser listing
+    When track is selected
+    Then player should play track playlist
+
+
 

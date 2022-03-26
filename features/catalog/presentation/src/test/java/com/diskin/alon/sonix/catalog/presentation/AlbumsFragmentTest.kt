@@ -6,11 +6,13 @@ import android.widget.RelativeLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelLazy
+import androidx.navigation.Navigation
+import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -20,12 +22,14 @@ import com.diskin.alon.sonix.catalog.application.model.AlbumSorting
 import com.diskin.alon.sonix.catalog.presentation.controller.AlbumsAdapter
 import com.diskin.alon.sonix.catalog.presentation.controller.AlbumsFragment
 import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
+import com.diskin.alon.sonix.catalog.presentation.viewmodel.AlbumDetailViewModel
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AlbumsViewModel
 import com.diskin.alon.sonix.common.presentation.ImageLoader
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
 import com.diskin.alon.sonix.common.uitesting.HiltTestActivity
 import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerView
 import com.diskin.alon.sonix.common.uitesting.launchFragmentInHiltContainer
+import com.google.common.truth.Truth.assertThat
 import io.mockk.*
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.instanceOf
@@ -50,6 +54,7 @@ class AlbumsFragmentTest {
 
     // Collaborators
     private val viewModel: AlbumsViewModel = mockk()
+    private val navController: TestNavHostController = TestNavHostController(ApplicationProvider.getApplicationContext())
 
     // Stub data
     private val albums = MutableLiveData<List<UiAlbum>>()
@@ -71,6 +76,13 @@ class AlbumsFragmentTest {
         // Launch fragment under test
         scenario = launchFragmentInHiltContainer<AlbumsFragment>()
         Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Set test nav controller
+        navController.setGraph(R.navigation.catalog_nav_graph)
+        scenario.onActivity { activity ->
+            val fragment = activity.supportFragmentManager.fragments.first()
+            Navigation.setViewNavController(fragment.requireView(), navController)
+        }
     }
 
     @Test
@@ -110,7 +122,7 @@ class AlbumsFragmentTest {
                     ImageLoader.loadImage(
                         imageView.context,
                         album.art,
-                        R.drawable.ic_outline_music_note_24,
+                        R.drawable.ic_round_music_note_24,
                         imageView
                     )
                 }
@@ -125,7 +137,7 @@ class AlbumsFragmentTest {
         // When
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(R.string.title_sort_albums_menu))
-            .perform(ViewActions.click())
+            .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Then
@@ -195,7 +207,7 @@ class AlbumsFragmentTest {
         // When
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(R.string.title_sort_albums_menu))
-            .perform(ViewActions.click())
+            .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         onView(
@@ -204,23 +216,44 @@ class AlbumsFragmentTest {
                 instanceOf(RelativeLayout::class.java)
             )
         )
-            .perform(ViewActions.click())
+            .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(R.string.title_sort_albums_menu))
-            .perform(ViewActions.click())
+            .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         onView(
             allOf(
                 hasDescendant(withText(R.string.title_action_sort_descending)),
                 instanceOf(RelativeLayout::class.java)
             ))
-            .perform(ViewActions.click())
+            .perform(click())
         Shadows.shadowOf(Looper.getMainLooper()).idle()
 
 
         // Then
         verify { viewModel.sort(AlbumSorting.Artist(true)) }
         verify { viewModel.sort(AlbumSorting.Artist(false)) }
+    }
+
+    @Test
+    fun openAlbumDetail_WhenAlbumSelected() {
+        // Given
+        val uiAlbums = createUiAlbums()
+
+        albums.value = uiAlbums
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // When
+        onView(withRecyclerView(R.id.albums).atPosition(0))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        assertThat(navController.currentDestination!!.id).isEqualTo(R.id.albumDetailFragment)
+        assertThat(
+            navController.currentBackStackEntry?.arguments?.get(AlbumDetailViewModel.KEY_ALBUM_ID)
+        )
+            .isEqualTo(uiAlbums.first().id)
     }
 }

@@ -4,15 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="kotlin.jvm.functions.Function1"/>
+        <import type="kotlin.Unit"/>
+        <import type="com.diskin.alon.sonix.catalog.presentation.model.UiAlbum"/>
+
         <variable
             name="album"
-            type="com.diskin.alon.sonix.catalog.presentation.model.UiAlbum" />
+            type="UiAlbum" />
+        <variable
+            name="albumClickListener"
+            type="Function1&lt;UiAlbum,Unit>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="1dp">
+        android:layout_margin="1dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> albumClickListener.invoke(album)}">
 
         <ImageView
             android:id="@+id/album_art"
@@ -20,6 +29,7 @@
             android:layout_height="0dp"
             android:scaleType="centerCrop"
             app:loadAlbumArt="@{album.art}"
+            android:background="#eeeeee"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

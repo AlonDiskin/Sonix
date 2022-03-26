@@ -2,12 +2,16 @@ package com.diskin.alon.sonix.catalog.presentation.controller
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.diskin.alon.sonix.catalog.application.model.AlbumSorting
 import com.diskin.alon.sonix.catalog.presentation.R
 import com.diskin.alon.sonix.catalog.presentation.databinding.FragmentAlbumsBinding
+import com.diskin.alon.sonix.catalog.presentation.model.UiAlbum
+import com.diskin.alon.sonix.catalog.presentation.viewmodel.AlbumDetailViewModel
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AlbumsViewModel
 import com.diskin.alon.sonix.common.presentation.ViewUpdateState
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +42,7 @@ class AlbumsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Set albums adapter
-        val adapter = AlbumsAdapter()
+        val adapter = AlbumsAdapter(::handleAlbumClick)
         layout.albums.adapter = adapter
 
         // Observe view model albums
@@ -121,5 +125,14 @@ class AlbumsFragment : Fragment() {
             is ViewUpdateState.Loading -> layout.progressBar.visibility = View.VISIBLE
             is ViewUpdateState.EndLoading -> layout.progressBar.visibility = View.GONE
         }
+    }
+
+    private fun handleAlbumClick(album: UiAlbum) {
+        openAlbumDetail(album.id)
+    }
+
+    private fun openAlbumDetail(id: Int) {
+        val bundle = bundleOf(AlbumDetailViewModel.KEY_ALBUM_ID to id)
+        findNavController().navigate(R.id.action_catalogFragment_to_albumDetailFragment, bundle)
     }
 }

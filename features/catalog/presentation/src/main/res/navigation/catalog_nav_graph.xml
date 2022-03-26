@@ -13,10 +13,18 @@
         <action
             android:id="@+id/action_catalogFragment_to_audioTrackDetailDialog"
             app:destination="@id/audioTrackDetailDialog" />
+        <action
+            android:id="@+id/action_catalogFragment_to_albumDetailFragment"
+            app:destination="@id/albumDetailFragment" />
     </fragment>
     <dialog
         android:id="@+id/audioTrackDetailDialog"
         android:name="com.diskin.alon.sonix.catalog.presentation.controller.AudioTrackDetailDialog"
         android:label="AudioTrackDetailDialog"
         tools:layout="@layout/dialog_audio_track_detail"/>
+    <fragment
+        android:id="@+id/albumDetailFragment"
+        android:name="com.diskin.alon.sonix.catalog.presentation.controller.AlbumDetailFragment"
+        android:label=""
+        tools:layout="@layout/fragment_album_detail"/>
 </navigation>

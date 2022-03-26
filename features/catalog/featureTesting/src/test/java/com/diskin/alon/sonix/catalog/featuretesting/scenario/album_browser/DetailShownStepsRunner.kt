@@ -1,4 +1,4 @@
-package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
+package com.diskin.alon.sonix.catalog.featuretesting.scenario.album_browser
 
 import android.content.ContentResolver
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -31,7 +31,7 @@ import javax.inject.Inject
 @LooperMode(LooperMode.Mode.PAUSED)
 @Config(application = HiltTestApplication::class,instrumentedPackages = ["androidx.loader.content"])
 @MediumTest
-class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
+class DetailShownStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
 
     companion object {
         @JvmStatic
@@ -39,8 +39,8 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         fun data(): Collection<Array<Any>> {
             val res = ArrayList<Array<Any>>()
             val scenarioConfigs = GreenCoffeeConfig()
-                .withFeatureFromAssets("feature/track_browser.feature")
-                .withTags("@persist-sorting")
+                .withFeatureFromAssets("feature/album_browser.feature")
+                .withTags("@detail-shown")
                 .scenarios()
 
             for (scenarioConfig in scenarioConfigs) {
@@ -74,6 +74,6 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         // Inject test dependencies
         hiltRule.inject()
 
-        start(SortingPersistedSteps(contentResolver))
+        start(DetailShownSteps(contentResolver))
     }
 }

@@ -72,4 +72,38 @@ class AlbumRepositoryImpl @Inject constructor(
             albums
         }
     }
+
+    override fun get(id: Int): Observable<AppResult<Album>> {
+        return mediaRepository.query(contentUri) { contentResolver ->
+            val columnId = MediaStore.Audio.Albums.ALBUM_ID
+            val columnName = MediaStore.Audio.Albums.ALBUM
+            val columnTracks = MediaStore.Audio.Albums.NUMBER_OF_SONGS
+            val columnArtist = MediaStore.Audio.Albums.ARTIST
+            val selection = "${MediaStore.Audio.Albums.ALBUM_ID} = ?"
+            val selectionArgs = arrayOf(id.toString())
+            val cursor = contentResolver.query(
+                contentUri,
+                arrayOf(columnId,columnName,columnArtist,columnTracks),
+                selection,
+                selectionArgs,
+                null
+            )!!
+
+            cursor.moveToFirst()
+
+            val albumName = cursor.getString(cursor.getColumnIndex(columnName))
+            val artist = cursor.getString(cursor.getColumnIndex(columnArtist))
+            val tracksCount = cursor.getInt(cursor.getColumnIndex(columnTracks))
+            val artUri = Uri.parse("content://media/external/audio/albumart/".plus(id.toString()))
+
+            cursor.close()
+            Album(
+                id,
+                albumName,
+                artist,
+                tracksCount,
+                artUri.toString()
+            )
+        }
+    }
 }

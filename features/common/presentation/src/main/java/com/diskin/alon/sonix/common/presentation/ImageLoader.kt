@@ -5,15 +5,17 @@ import android.net.Uri
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.squareup.picasso.MemoryPolicy
+import com.squareup.picasso.Picasso
 
 object ImageLoader {
 
-    fun loadImage(context: Context,uri: Uri?,@DrawableRes placeHolder: Int,imageView: ImageView) {
-        Glide
-            .with(context)
+    fun loadImage(context: Context,uri: Uri?,@DrawableRes default: Int,imageView: ImageView) {
+        Glide.with(context)
             .load(uri)
-            .centerCrop()
-            .placeholder(placeHolder)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .error(default)
             .into(imageView)
     }
 }

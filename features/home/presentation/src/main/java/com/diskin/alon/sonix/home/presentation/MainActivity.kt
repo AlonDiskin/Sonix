@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.diskin.alon.sonix.home.presentation.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -39,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Set nav controller and navigation ui for main app graph
-        if (savedInstanceState == null) {
+        val navController = if (savedInstanceState == null) {
             val host = NavHostFragment.create(graphProvider.getAppGraph())
 
             supportFragmentManager.beginTransaction()
@@ -51,6 +53,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment)
                 .navController
+        }
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+
+        layout.toolbar.setupWithNavController(navController, appBarConfiguration)
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            layout.appBar.setExpanded(true)
         }
     }
 

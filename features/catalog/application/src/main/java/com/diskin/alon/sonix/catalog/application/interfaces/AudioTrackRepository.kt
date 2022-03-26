@@ -13,4 +13,6 @@ interface AudioTrackRepository {
     fun get(id: Int): Observable<AppResult<AudioTrack>>
 
     fun delete(id: Int): Single<AppResult<Unit>>
+
+    fun getByAlbumId(id: Int): Observable<AppResult<List<AudioTrack>>>
 }

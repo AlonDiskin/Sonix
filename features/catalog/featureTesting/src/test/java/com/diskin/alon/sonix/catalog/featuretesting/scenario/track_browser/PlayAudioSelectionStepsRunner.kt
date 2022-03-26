@@ -30,7 +30,7 @@ import javax.inject.Inject
 @UninstallModules(CatalogEventsModule::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @LooperMode(LooperMode.Mode.PAUSED)
-@Config(application = HiltTestApplication::class,sdk = [29])
+@Config(application = HiltTestApplication::class,instrumentedPackages = ["androidx.loader.content"])
 @MediumTest
 class PlayAudioSelectionStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
 

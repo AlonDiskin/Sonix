@@ -38,12 +38,7 @@ class ListingSortedSteps(
 ) : GreenCoffeeSteps() {
 
     private lateinit var scenario: ActivityScenario<HiltTestActivity>
-    private val albums = listOf(
-        DeviceAlbum(1,"album_1","artist_1",2),
-        DeviceAlbum(2,"album_2","artist_2",1),
-        DeviceAlbum(3,"album_3","artist_3",4),
-        DeviceAlbum(4,"album_4","artist_4",3)
-    )
+    private val albums = createDeviceAlbums()
     private lateinit var expected: List<DeviceAlbum>
 
     init {
@@ -71,7 +66,7 @@ class ListingSortedSteps(
                 else -> throw IllegalArgumentException("Unknown sort for media store test query:${sort}")
             }
 
-            createAlbumMediaStoreCursor(albums.map { arrayOf(it.id,it.name,it.artist,it.tracks) })
+            createAlbumMediaStoreCursor(albums)
         }
 
         every { contentResolver.registerContentObserver(contentUri,any(),any()) } returns Unit
@@ -171,21 +166,6 @@ class ListingSortedSteps(
         verifyExpectedAlbumsListingShown()
     }
 
-    private fun createAlbumMediaStoreCursor(values: List<Array<out Any>>): MatrixCursor {
-        val cursor = MatrixCursor(
-            arrayOf(
-                MediaStore.Audio.Albums.ALBUM_ID,
-                MediaStore.Audio.Albums.ALBUM,
-                MediaStore.Audio.Albums.ARTIST,
-                MediaStore.Audio.Albums.NUMBER_OF_SONGS
-            ),
-            values.size
-        )
-
-        values.forEach(cursor::addRow)
-        return cursor
-    }
-
     private fun clearSharedPrefs() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -221,6 +201,4 @@ class ListingSortedSteps(
                 .check(ViewAssertions.matches(withText(album.artist)))
         }
     }
-
-    data class DeviceAlbum(val id: Int,val name: String,val artist: String,val tracks: Int)
 }

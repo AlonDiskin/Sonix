@@ -53,4 +53,19 @@ class AlbumRepositoryImplTest {
         // Then
         observer.assertValue(mediaResult)
     }
+
+    @Test
+    fun getDeviceAlbum_WhenQueried() {
+        // Given
+        val id = 1
+        val mediaResult: AppResult.Success<Album> = mockk()
+
+        every { mediaRepository.query(contentUri,any<((contentResolver: ContentResolver) -> (Album))>()) } returns Observable.just(mediaResult)
+
+        // When
+        val observer = repository.get(id).test()
+
+        // Then
+        observer.assertValue(mediaResult)
+    }
 }

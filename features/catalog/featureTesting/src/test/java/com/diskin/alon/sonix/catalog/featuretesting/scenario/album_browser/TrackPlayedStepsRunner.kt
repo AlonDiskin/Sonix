@@ -1,10 +1,11 @@
-package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
+package com.diskin.alon.sonix.catalog.featuretesting.scenario.album_browser
 
 import android.content.ContentResolver
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.databinding.ViewDataBinding
 import androidx.test.filters.MediumTest
 import com.diskin.alon.sonix.catalog.di.CatalogEventsModule
+import com.diskin.alon.sonix.catalog.events.SelectedPlaylistPublisher
 import com.diskin.alon.sonix.common.uitesting.setFinalStatic
 import com.mauriciotogneri.greencoffee.GreenCoffeeConfig
 import com.mauriciotogneri.greencoffee.GreenCoffeeTest
@@ -31,7 +32,7 @@ import javax.inject.Inject
 @LooperMode(LooperMode.Mode.PAUSED)
 @Config(application = HiltTestApplication::class,instrumentedPackages = ["androidx.loader.content"])
 @MediumTest
-class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
+class TrackPlayedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
 
     companion object {
         @JvmStatic
@@ -39,8 +40,8 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         fun data(): Collection<Array<Any>> {
             val res = ArrayList<Array<Any>>()
             val scenarioConfigs = GreenCoffeeConfig()
-                .withFeatureFromAssets("feature/track_browser.feature")
-                .withTags("@persist-sorting")
+                .withFeatureFromAssets("feature/album_browser.feature")
+                .withTags("@track-played")
                 .scenarios()
 
             for (scenarioConfig in scenarioConfigs) {
@@ -54,14 +55,18 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         @BeforeClass
         fun setupClass() {
             RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
+            RxJavaPlugins.setComputationSchedulerHandler { Schedulers.trampoline() }
         }
     }
 
     @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
+    val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
     val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @Inject
+    lateinit var selectedPlaylistPublisher: SelectedPlaylistPublisher
 
     @Inject
     lateinit var contentResolver: ContentResolver
@@ -74,6 +79,6 @@ class SortingPersistedStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(sc
         // Inject test dependencies
         hiltRule.inject()
 
-        start(SortingPersistedSteps(contentResolver))
+        start(TrackPlayedSteps(selectedPlaylistPublisher,contentResolver))
     }
 }

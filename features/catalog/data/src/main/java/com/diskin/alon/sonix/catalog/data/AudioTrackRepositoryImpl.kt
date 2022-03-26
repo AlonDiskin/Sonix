@@ -159,4 +159,62 @@ class AudioTrackRepositoryImpl @Inject constructor(
     override fun delete(id: Int): Single<AppResult<Unit>> {
         return mediaRepository.delete(contentUri,id)
     }
+
+    override fun getByAlbumId(id: Int): Observable<AppResult<List<AudioTrack>>> {
+        return mediaRepository.query(contentUri) { contentResolver ->
+            val tracks: MutableList<AudioTrack> = arrayListOf()
+            val columnId = MediaStore.Audio.Media._ID
+            val columnName = MediaStore.Audio.Media.TITLE
+            val columnAlbum = MediaStore.Audio.Media.ALBUM
+            val columnArtist = MediaStore.Audio.Media.ARTIST
+            val columnFormat = MediaStore.Audio.Media.MIME_TYPE
+            val columnSize = MediaStore.Audio.Media.SIZE
+            val columnPath = MediaStore.Audio.Media.DATA
+            val columnDuration = MediaStore.Audio.Media.DURATION
+            val selection = "${MediaStore.Audio.Media.ALBUM_ID} = ?"
+            val selectionArgs = arrayOf(id.toString())
+            val cursor = contentResolver.query(
+                contentUri,
+                arrayOf(
+                    columnId,
+                    columnName,
+                    columnAlbum,
+                    columnArtist,
+                    columnFormat,
+                    columnSize,
+                    columnPath,
+                    columnDuration
+                ),
+                selection,
+                selectionArgs,
+                null)!!
+
+            while (cursor.moveToNext()) {
+                val trackId = cursor.getInt(cursor.getColumnIndex(columnId))
+                val trackName = cursor.getString(cursor.getColumnIndex(columnName))
+                val trackAlbum = cursor.getString(cursor.getColumnIndex(columnAlbum))
+                val trackArtist = cursor.getString(cursor.getColumnIndex(columnArtist))
+                val trackFormat = cursor.getString(cursor.getColumnIndex(columnFormat))
+                val trackSize = cursor.getLong(cursor.getColumnIndex(columnSize))
+                val trackPath = cursor.getString(cursor.getColumnIndex(columnPath))
+                val trackDuration = cursor.getLong(cursor.getColumnIndex(columnDuration))
+
+                tracks.add(
+                    AudioTrack(
+                        trackId,
+                        trackPath,
+                        trackName,
+                        trackArtist,
+                        trackAlbum,
+                        trackSize,
+                        trackDuration,
+                        trackFormat
+                    )
+                )
+            }
+
+            cursor.close()
+            tracks
+        }
+    }
 }
