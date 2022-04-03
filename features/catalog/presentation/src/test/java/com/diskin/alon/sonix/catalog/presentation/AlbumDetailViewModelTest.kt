@@ -59,7 +59,7 @@ class AlbumDetailViewModelTest {
 
     // Stub data
     private val albumDetailSubject = BehaviorSubject.create<AppResult<AlbumDetailResponse>>()
-    private val albumId = 1
+    private val albumId = 1L
 
     @Before
     fun setUp() {
@@ -118,7 +118,7 @@ class AlbumDetailViewModelTest {
     @Test
     fun deleteTrackFromModel_WhenTrackDeleted() {
         // Given
-        val trackId = 1
+        val trackId = 1L
 
         // When
         viewModel.deleteTrack(trackId)
@@ -143,7 +143,7 @@ class AlbumDetailViewModelTest {
     fun playModelTracks_WhenRequested() {
         // Given
         val index = 1
-        val ids = mockk<List<Int>>()
+        val ids = mockk<List<Long>>()
 
         every { playTracksUseCase.execute(any()) } returns Single.just(AppResult.Success(Unit))
 

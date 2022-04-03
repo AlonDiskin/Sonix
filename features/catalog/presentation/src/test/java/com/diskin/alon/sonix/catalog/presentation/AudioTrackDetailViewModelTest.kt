@@ -52,7 +52,7 @@ class AudioTrackDetailViewModelTest {
     // Stub data
     private val trackDetailSubject = BehaviorSubject.create<AppResult<AudioTrackDetailDto>>()
     private val idKey = "track id"
-    private val trackId = 1
+    private val trackId = 1L
 
     @Before
     fun setUp() {

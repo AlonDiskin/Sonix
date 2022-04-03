@@ -51,7 +51,7 @@ class AlbumRepositoryImpl @Inject constructor(
             )!!
 
             while (cursor.moveToNext()) {
-                val id = cursor.getInt(cursor.getColumnIndex(columnId))
+                val id = cursor.getLong(cursor.getColumnIndex(columnId))
                 val albumName = cursor.getString(cursor.getColumnIndex(columnName))
                 val artist = cursor.getString(cursor.getColumnIndex(columnArtist))
                 val tracksCount = cursor.getInt(cursor.getColumnIndex(columnTracks))
@@ -73,7 +73,7 @@ class AlbumRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun get(id: Int): Observable<AppResult<Album>> {
+    override fun get(id: Long): Observable<AppResult<Album>> {
         return mediaRepository.query(contentUri) { contentResolver ->
             val columnId = MediaStore.Audio.Albums.ALBUM_ID
             val columnName = MediaStore.Audio.Albums.ALBUM

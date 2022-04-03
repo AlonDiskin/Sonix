@@ -30,7 +30,7 @@ class GetDeviceTrackDetailUseCaseTest {
     @Test
     fun getDeviceTrackDetail_WhenExecuted() {
         // Given
-        val id = 1
+        val id = 1L
         val deviceTrack = mockk<AudioTrack>()
         val mappedTrack = mockk<AudioTrackDetailDto>()
 

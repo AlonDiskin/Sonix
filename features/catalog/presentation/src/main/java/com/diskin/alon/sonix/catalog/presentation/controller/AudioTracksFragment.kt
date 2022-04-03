@@ -182,12 +182,12 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
-    private fun showTrackDetail(trackId: Int) {
+    private fun showTrackDetail(trackId: Long) {
         val bundle = bundleOf(getString(R.string.arg_track_id) to trackId)
         findNavController().navigate(R.id.audioTrackDetailDialog, bundle)
     }
 
-    private fun shareTrack(trackId: Int) {
+    private fun shareTrack(trackId: Long) {
         activity?.let {
             val audioCollection =     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Audio.Media.getContentUri(
@@ -206,7 +206,7 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
-    private fun deleteTrack(trackId: Int) {
+    private fun deleteTrack(trackId: Long) {
         MaterialAlertDialogBuilder(requireActivity())
             .setMessage(getString(R.string.message_dialog_delete_track))
             .setTitle(getString(R.string.title_dialog_delete_track))

@@ -308,4 +308,21 @@ class AlbumDetailFragmentTest {
             .getString(R.string.error_message_unknown)
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expectedToastMessage)
     }
+
+    @Test
+    fun playAllTracksFromFirst_WhenPlayButtonClicked() {
+        // Given
+        val uiDetail = createUiAlbumDetail()
+        albumDetail.value = uiDetail
+
+        every { viewModel.playTracks(any(),any()) } returns Unit
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // When
+        onView(withId(R.id.fab))
+            .perform(click())
+
+        // Then
+        verify { viewModel.playTracks(0,uiDetail.tracks.map { it.id }) }
+    }
 }

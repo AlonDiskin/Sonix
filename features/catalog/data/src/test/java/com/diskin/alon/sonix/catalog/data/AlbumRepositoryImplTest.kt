@@ -57,7 +57,7 @@ class AlbumRepositoryImplTest {
     @Test
     fun getDeviceAlbum_WhenQueried() {
         // Given
-        val id = 1
+        val id = 1L
         val mediaResult: AppResult.Success<Album> = mockk()
 
         every { mediaRepository.query(contentUri,any<((contentResolver: ContentResolver) -> (Album))>()) } returns Observable.just(mediaResult)

@@ -61,6 +61,15 @@ class AlbumDetailFragment : Fragment() {
 
         // Observe view model detail error state
         viewModel.error.observe(viewLifecycleOwner, this::handleTracksError)
+
+        // Play whole album upon fab click
+        layout.fab.setOnClickListener {
+            viewModel.detail.value?.let { detail ->
+                detail.tracks.firstOrNull()?.let { firstTrack ->
+                    playTracksList(firstTrack)
+                }
+            }
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -87,10 +96,14 @@ class AlbumDetailFragment : Fragment() {
     }
 
     private fun handleTrackClick(track: UiAlbumTrack) {
+        playTracksList(track)
+    }
+
+    private fun playTracksList(firstTrack: UiAlbumTrack) {
         val adapter = layout.albumTracks.adapter as AlbumTracksAdapter
 
         viewModel.playTracks(
-            adapter.currentList.indexOf(track),
+            adapter.currentList.indexOf(firstTrack),
             adapter.currentList.map { it.id }
         )
     }
@@ -122,12 +135,12 @@ class AlbumDetailFragment : Fragment() {
         }
     }
 
-    private fun showTrackDetail(trackId: Int) {
+    private fun showTrackDetail(trackId: Long) {
         val bundle = bundleOf(getString(R.string.arg_track_id) to trackId)
         findNavController().navigate(R.id.audioTrackDetailDialog, bundle)
     }
 
-    private fun shareTrack(trackId: Int) {
+    private fun shareTrack(trackId: Long) {
         activity?.let {
             val audioCollection =     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Audio.Media.getContentUri(
@@ -146,7 +159,7 @@ class AlbumDetailFragment : Fragment() {
         }
     }
 
-    private fun deleteTrack(trackId: Int) {
+    private fun deleteTrack(trackId: Long) {
         MaterialAlertDialogBuilder(requireActivity())
             .setMessage(getString(R.string.message_dialog_delete_track))
             .setTitle(getString(R.string.title_dialog_delete_track))

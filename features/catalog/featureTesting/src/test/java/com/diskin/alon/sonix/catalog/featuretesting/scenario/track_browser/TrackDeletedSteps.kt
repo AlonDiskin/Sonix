@@ -34,7 +34,7 @@ class TrackDeletedSteps(
 
     private lateinit var scenario: ActivityScenario<HiltTestActivity>
     private val deviceTracks: MutableList<DeviceTrack> = createDeiceTracks().toMutableList()
-    private var lastDeletedId = -1
+    private var lastDeletedId = -1L
 
     @Given("^user has public audio tracks on device$")
     fun user_has_public_audio_tracks_on_device() {
@@ -76,7 +76,7 @@ class TrackDeletedSteps(
         every { contentResolver.delete(any(),null,null) } answers {
             // find deleted id from given uri in cursor, remove row and update slot observer
             val uri = args[0] as Uri
-            val id = uri.lastPathSegment!!.toInt()
+            val id = uri.lastPathSegment!!.toLong()
             val deletedTrack = deviceTracks.find { it.id == id }
             val observer = observerSlot.captured
             lastDeletedId = id

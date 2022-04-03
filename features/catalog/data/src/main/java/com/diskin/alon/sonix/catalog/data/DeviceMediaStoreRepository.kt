@@ -42,7 +42,7 @@ class DeviceMediaStoreRepository @Inject constructor(
             .startWith(AppResult.Loading())
     }
 
-    fun delete(contentUri: Uri,id: Int): Single<AppResult<Unit>> {
+    fun delete(contentUri: Uri,id: Long): Single<AppResult<Unit>> {
         return Single.create<AppResult<Unit>> { emitter ->
             contentResolver.delete(
                 Uri.parse(

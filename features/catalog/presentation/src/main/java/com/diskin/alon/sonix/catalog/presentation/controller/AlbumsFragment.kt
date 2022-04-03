@@ -131,7 +131,7 @@ class AlbumsFragment : Fragment() {
         openAlbumDetail(album.id)
     }
 
-    private fun openAlbumDetail(id: Int) {
+    private fun openAlbumDetail(id: Long) {
         val bundle = bundleOf(AlbumDetailViewModel.KEY_ALBUM_ID to id)
         findNavController().navigate(R.id.action_catalogFragment_to_albumDetailFragment, bundle)
     }

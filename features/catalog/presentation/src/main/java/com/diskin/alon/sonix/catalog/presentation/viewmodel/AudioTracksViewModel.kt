@@ -40,7 +40,7 @@ class AudioTracksViewModel @Inject constructor(
     private val _update = MutableLiveData<ViewUpdateState>()
     val update: LiveData<ViewUpdateState> get() = _update
     val error = SingleLiveEvent<AppError>()
-    private val deletionSubject = BehaviorSubject.create<Int>()
+    private val deletionSubject = BehaviorSubject.create<Long>()
 
     init {
         addSubscription(
@@ -55,11 +55,11 @@ class AudioTracksViewModel @Inject constructor(
         selectedSorting.onNext(sorting)
     }
 
-    fun deleteTrack(id: Int) {
+    fun deleteTrack(id: Long) {
         deletionSubject.onNext(id)
     }
 
-    fun playTracks(statIndex: Int, ids: List<Int>) {
+    fun playTracks(statIndex: Int, ids: List<Long>) {
         playTracksSubject.onNext(PlayTracksRequest(statIndex,ids))
     }
 

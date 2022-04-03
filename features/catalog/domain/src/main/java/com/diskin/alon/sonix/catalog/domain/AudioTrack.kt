@@ -1,6 +1,6 @@
 package com.diskin.alon.sonix.catalog.domain
 
-data class AudioTrack(val id: Int,
+data class AudioTrack(val id: Long,
                       val path: String,
                       val name: String,
                       val artist: String,

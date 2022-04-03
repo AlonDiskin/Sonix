@@ -12,7 +12,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.diskin.alon.sonix.common.application.AppError
 import com.diskin.alon.sonix.catalog.presentation.controller.AudioTrackDetailDialog
 import com.diskin.alon.sonix.catalog.presentation.model.UiAudioTrackDetail
 import com.diskin.alon.sonix.catalog.presentation.viewmodel.AudioTrackDetailViewModel

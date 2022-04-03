@@ -11,7 +11,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.diskin.alon.sonix.catalog.presentation.R
 import org.robolectric.Shadows
 
-data class DeviceAlbum(val id: Int,val name: String,val artist: String,val tracks: Int)
+data class DeviceAlbum(val id: Long,val name: String,val artist: String,val tracks: Int)
 
 fun openAlbumsSortingMenu() {
     openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
@@ -107,7 +107,7 @@ fun createDeviceAlbumTracks(): List<DeviceTrack> = listOf(
     )
 )
 
-data class DeviceTrack(val id: Int,
+data class DeviceTrack(val id: Long,
                        val path: String,
                        val name: String,
                        val artist: String,

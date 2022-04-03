@@ -91,7 +91,7 @@ class DetailShownSteps(
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.albumDetailFragment) {
                 val keyAlbumId = AlbumDetailViewModel.KEY_ALBUM_ID
-                val albumIdArg = navController.currentBackStackEntry!!.arguments!!.getInt(keyAlbumId)
+                val albumIdArg = navController.currentBackStackEntry!!.arguments!!.getLong(keyAlbumId)
                 val bundle = bundleOf(AlbumDetailViewModel.KEY_ALBUM_ID to albumIdArg)
                 scenario = launchFragmentInHiltContainer<AlbumDetailFragment>(fragmentArgs = bundle)
                 Shadows.shadowOf(Looper.getMainLooper()).idle()

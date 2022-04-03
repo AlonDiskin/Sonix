@@ -58,7 +58,7 @@ class AudioTrackRepositoryImplTest {
     @Test
     fun getTrackDetailFromDevice_WhenQueried() {
         // Given
-        val id = 1
+        val id = 1L
         val storeResult = mockk<AppResult.Success<AudioTrack>>()
 
         every { mediaRepository.query(contentUri,any<((contentResolver: ContentResolver) -> (AudioTrack))>()) } returns Observable.just(storeResult)
@@ -73,7 +73,7 @@ class AudioTrackRepositoryImplTest {
     @Test
     fun deleteTrackFromDevice_WhenCommanded() {
         // Given
-        val id = 1
+        val id = 1L
         val storeResult = mockk<AppResult.Success<Unit>>()
 
         every { mediaRepository.delete(contentUri, id) } returns Single.just(storeResult)
@@ -88,7 +88,7 @@ class AudioTrackRepositoryImplTest {
     @Test
     fun getAlbumTracksFromDevice_WhenQueried() {
         // Given
-        val id = 1
+        val id = 1L
         val storeResult = mockk<AppResult.Success<List<AudioTrack>>>()
 
         every { mediaRepository.query(contentUri,any<((contentResolver: ContentResolver) -> (List<AudioTrack>))>()) } returns Observable.just(storeResult)

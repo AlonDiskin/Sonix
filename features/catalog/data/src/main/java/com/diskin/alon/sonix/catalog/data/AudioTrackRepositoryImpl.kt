@@ -69,7 +69,7 @@ class AudioTrackRepositoryImpl @Inject constructor(
                 sortOrder)!!
 
             while (cursor.moveToNext()) {
-                val trackId = cursor.getInt(cursor.getColumnIndex(columnId))
+                val trackId = cursor.getLong(cursor.getColumnIndex(columnId))
                 val trackName = cursor.getString(cursor.getColumnIndex(columnName))
                 val trackAlbum = cursor.getString(cursor.getColumnIndex(columnAlbum))
                 val trackArtist = cursor.getString(cursor.getColumnIndex(columnArtist))
@@ -98,7 +98,7 @@ class AudioTrackRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun get(id: Int): Observable<AppResult<AudioTrack>> {
+    override fun get(id: Long): Observable<AppResult<AudioTrack>> {
         return mediaRepository.query(contentUri) { contentResolver ->
             // Define result cursor columns
             val columnId = MediaStore.Audio.Media._ID
@@ -132,7 +132,7 @@ class AudioTrackRepositoryImpl @Inject constructor(
             // Extract track data
             cursor.moveToFirst()
 
-            val trackId = cursor.getInt(cursor.getColumnIndex(columnId))
+            val trackId = cursor.getLong(cursor.getColumnIndex(columnId))
             val trackName = cursor.getString(cursor.getColumnIndex(columnName))
             val trackAlbum = cursor.getString(cursor.getColumnIndex(columnAlbum))
             val trackArtist = cursor.getString(cursor.getColumnIndex(columnArtist))
@@ -156,11 +156,11 @@ class AudioTrackRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun delete(id: Int): Single<AppResult<Unit>> {
+    override fun delete(id: Long): Single<AppResult<Unit>> {
         return mediaRepository.delete(contentUri,id)
     }
 
-    override fun getByAlbumId(id: Int): Observable<AppResult<List<AudioTrack>>> {
+    override fun getByAlbumId(id: Long): Observable<AppResult<List<AudioTrack>>> {
         return mediaRepository.query(contentUri) { contentResolver ->
             val tracks: MutableList<AudioTrack> = arrayListOf()
             val columnId = MediaStore.Audio.Media._ID
@@ -190,7 +190,7 @@ class AudioTrackRepositoryImpl @Inject constructor(
                 null)!!
 
             while (cursor.moveToNext()) {
-                val trackId = cursor.getInt(cursor.getColumnIndex(columnId))
+                val trackId = cursor.getLong(cursor.getColumnIndex(columnId))
                 val trackName = cursor.getString(cursor.getColumnIndex(columnName))
                 val trackAlbum = cursor.getString(cursor.getColumnIndex(columnAlbum))
                 val trackArtist = cursor.getString(cursor.getColumnIndex(columnArtist))

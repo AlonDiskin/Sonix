@@ -28,16 +28,16 @@ class AudioTrackDetailViewModel @Inject constructor(
 
     private val _trackDetail = MutableLiveData<UiAudioTrackDetail>()
     val trackDetail: LiveData<UiAudioTrackDetail> get() = _trackDetail
-    val error = SingleLiveEvent<com.diskin.alon.sonix.common.application.AppError>()
+    val error = SingleLiveEvent<AppError>()
 
     init {
-        val trackId = savedState.get<Int>(resources.getString(R.string.arg_track_id)) ?:
+        val trackId = savedState.get<Long>(resources.getString(R.string.arg_track_id)) ?:
         throw IllegalStateException("Must have track id state!")
 
         addSubscription(createTrackDetailSubscription(trackId))
     }
 
-    private fun createTrackDetailSubscription(trackId: Int): Disposable {
+    private fun createTrackDetailSubscription(trackId: Long): Disposable {
         return getDeviceTrackDetailUseCase.execute(trackId)
             .observeOn(AndroidSchedulers.mainThread())
             .mapAppResult(trackDetailMapper::map)

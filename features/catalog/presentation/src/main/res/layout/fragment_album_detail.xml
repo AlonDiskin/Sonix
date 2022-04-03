@@ -121,7 +121,8 @@
             app:layout_anchorGravity="end|bottom"
             app:backgroundTint="?attr/colorAccent"
             android:src="@drawable/ic_round_play_arrow_24"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            android:contentDescription="@string/decription_fab_play_album" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -53,7 +53,7 @@ class PlaylistSenderImplTest {
         } else {
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         }
-        val ids = listOf(1,2,3,4,5,6)
+        val ids = listOf(1L,2L,3L,4L,5L,6L)
         val startIndex = 2
         val expectedEvent = SelectedPlaylist(
             startIndex,

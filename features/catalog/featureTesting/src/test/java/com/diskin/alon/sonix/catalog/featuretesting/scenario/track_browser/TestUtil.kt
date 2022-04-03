@@ -15,7 +15,7 @@ import com.diskin.alon.sonix.common.uitesting.RecyclerViewMatcher.withRecyclerVi
 import com.diskin.alon.sonix.common.uitesting.isRecyclerViewItemsCount
 import org.robolectric.Shadows
 
-data class DeviceTrack(val id: Int,
+data class DeviceTrack(val id: Long,
                        val path: String,
                        val name: String,
                        val artist: String,

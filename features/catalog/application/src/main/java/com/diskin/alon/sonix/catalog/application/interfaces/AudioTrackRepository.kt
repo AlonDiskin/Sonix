@@ -10,9 +10,9 @@ interface AudioTrackRepository {
 
     fun getAll(sorting: AudioTracksSorting): Observable<AppResult<List<AudioTrack>>>
 
-    fun get(id: Int): Observable<AppResult<AudioTrack>>
+    fun get(id: Long): Observable<AppResult<AudioTrack>>
 
-    fun delete(id: Int): Single<AppResult<Unit>>
+    fun delete(id: Long): Single<AppResult<Unit>>
 
-    fun getByAlbumId(id: Int): Observable<AppResult<List<AudioTrack>>>
+    fun getByAlbumId(id: Long): Observable<AppResult<List<AudioTrack>>>
 }

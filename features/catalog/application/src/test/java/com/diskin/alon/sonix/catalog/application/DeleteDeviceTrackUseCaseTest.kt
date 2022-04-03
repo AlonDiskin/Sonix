@@ -26,7 +26,7 @@ class DeleteDeviceTrackUseCaseTest {
     @Test
     fun deleteTrackFromDevice_WhenExecuted() {
         // Given
-        val id = 1
+        val id = 1L
         val repoDeleteResult = mockk<AppResult.Success<Unit>>()
 
         every { trackRepository.delete(id) } returns Single.just(repoDeleteResult)

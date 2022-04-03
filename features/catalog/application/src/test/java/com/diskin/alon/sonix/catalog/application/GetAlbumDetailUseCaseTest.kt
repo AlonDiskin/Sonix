@@ -36,7 +36,7 @@ class GetAlbumDetailUseCaseTest {
     @Test
     fun getAlbumTracks_WhenExecuted() {
         // Given
-        val albumId = 1
+        val albumId = 1L
         val repoTracks = mockk<List<AudioTrack>>()
         val repoAlbum = mockk<Album>()
         val mappedTracks = mockk<List<AudioTrackDto>>()

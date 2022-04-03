@@ -42,5 +42,15 @@ Feature: Device tracks albums browser
     When track is selected
     Then player should play track playlist
 
+  #Rule: Play album tracks
+
+  @play-all-tracks
+  Scenario: Album tracks played
+    Given user selected an album from browser listing
+    When he selects to play all album tracks
+    Then player should play all album tracks from first one
+
+
+
 
 

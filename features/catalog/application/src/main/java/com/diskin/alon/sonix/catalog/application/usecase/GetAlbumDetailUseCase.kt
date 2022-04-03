@@ -17,9 +17,9 @@ class GetAlbumDetailUseCase @Inject constructor(
     private val albumRepo: AlbumRepository,
     private val tracksMapper: TracksMapper,
     private val albumsMapper: AlbumsMapper
-) : UseCase<Int,Observable<AppResult<AlbumDetailResponse>>> {
+) : UseCase<Long,Observable<AppResult<AlbumDetailResponse>>> {
 
-    override fun execute(param: Int): Observable<AppResult<AlbumDetailResponse>> {
+    override fun execute(param: Long): Observable<AppResult<AlbumDetailResponse>> {
         return albumRepo.get(param).mapAppResult{ albumsMapper.map(listOf(it)).first()}
             .flatMapAppResult { albumDto ->
                 trackRepo.getByAlbumId(param).mapAppResult(tracksMapper::map)

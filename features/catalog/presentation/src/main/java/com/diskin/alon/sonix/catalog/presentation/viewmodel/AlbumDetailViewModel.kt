@@ -40,7 +40,7 @@ class AlbumDetailViewModel @Inject constructor(
     val update: LiveData<ViewUpdateState> get() = _update
     val error = SingleLiveEvent<AppError>()
     private val playTracksSubject = BehaviorSubject.create<PlayTracksRequest>()
-    private val deletionSubject = BehaviorSubject.create<Int>()
+    private val deletionSubject = BehaviorSubject.create<Long>()
 
     init {
         addSubscription(
@@ -50,16 +50,16 @@ class AlbumDetailViewModel @Inject constructor(
         )
     }
 
-    fun playTracks(startIndex: Int, ids: List<Int>) {
+    fun playTracks(startIndex: Int, ids: List<Long>) {
         playTracksSubject.onNext(PlayTracksRequest(startIndex,ids))
     }
 
-    fun deleteTrack(trackId: Int) {
+    fun deleteTrack(trackId: Long) {
         deletionSubject.onNext(trackId)
     }
 
     private fun createAlbumDetailSubscription(): Disposable {
-        val albumId = stateHandle.get<Int>(KEY_ALBUM_ID) ?:
+        val albumId = stateHandle.get<Long>(KEY_ALBUM_ID) ?:
         throw IllegalStateException("Must contain album id arg in saved state!")
 
         return albumDetailUseCase.execute(albumId)

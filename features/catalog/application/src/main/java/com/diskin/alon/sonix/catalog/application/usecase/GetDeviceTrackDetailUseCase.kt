@@ -12,9 +12,9 @@ import javax.inject.Inject
 class GetDeviceTrackDetailUseCase @Inject constructor(
     private val trackRepository: AudioTrackRepository,
     private val trackMapper: TrackDetailMapper
-) : UseCase<Int, Observable<AppResult<AudioTrackDetailDto>>> {
+) : UseCase<Long, Observable<AppResult<AudioTrackDetailDto>>> {
 
-    override fun execute(param: Int): Observable<AppResult<AudioTrackDetailDto>> {
+    override fun execute(param: Long): Observable<AppResult<AudioTrackDetailDto>> {
         return trackRepository.get(param)
             .mapAppResult(trackMapper::map)
     }
