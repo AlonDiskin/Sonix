@@ -67,7 +67,7 @@
             app:layout_constraintEnd_toEndOf="@+id/track_name"
             app:layout_constraintStart_toStartOf="@+id/track_name"
             app:layout_constraintTop_toBottomOf="@+id/track_name"
-            tools:text="the Beatles" />
+            tools:text="The Beatles" />
 
         <View
             android:layout_width="0dp"

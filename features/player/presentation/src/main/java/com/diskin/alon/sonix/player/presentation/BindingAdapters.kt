@@ -17,6 +17,7 @@ fun loadTrackArt(imageView: ImageView, uri: Uri?) {
             mr.embeddedPicture?.let { byteArr ->
                 val inputStream = ByteArrayInputStream(byteArr)
                 imageView.setImageBitmap(BitmapFactory.decodeStream(inputStream))
+
             } ?: run {
                 imageView.setImageResource(R.drawable.ic_round_music_note_48)
             }

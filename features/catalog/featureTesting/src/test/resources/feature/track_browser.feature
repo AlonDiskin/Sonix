@@ -4,13 +4,10 @@ Feature: Users device tracks browser
 
   @list-tracks
   Scenario Outline: Device track listed according to sorting
-    Given User has public audio tracks on device
-    When User open audio browser screen
-    Then Device public tracks should be listed by date, in descending order
-    When User select other "<sorting>" and "<order>"
-    Then Tracks listing should be sorted by "<sorting>" in order "<order>"
-    When First listed track deleted from device
-    Then Tracks listing should be updated accordingly
+    Given user opened audio browser screen
+    Then device public tracks should be listed by date, in descending order
+    When user select other "<sorting>" and "<order>"
+    Then tracks listing should be sorted by "<sorting>" in order "<order>"
     Examples:
       | order      | sorting     |
       | ascending  | date        |
@@ -21,30 +18,28 @@ Feature: Users device tracks browser
 
   @share-track
   Scenario: Track is shared
-    Given User has public audio tracks on device
-    When User open audio browser screen
-    And select to share first listed track
-    Then App should show device sharing ui
+    Given user open audio browser screen
+    When he select to share first listed track
+    Then app should show device sharing ui
 
   #Rule: Allow users to delete tracks
 
   @delete-track
   Scenario: Track is deleted from device
-    Given User has public audio tracks on device
-    When User open audio browser screen
-    And User select to delete first and last listed tracks
-    Then App should delete selected tracks from device
-    And App should update shown listed tracks
+    Given user has public audio tracks on device
+    When user open audio browser screen
+    And user select to delete first and last listed tracks
+    Then app should delete selected tracks from device
+    And app should update shown listed tracks
 
   #Rule: Persist user tracks sorting selection
 
   @persist-sorting
   Scenario Outline: Sorting selection persisted
-    Given User has public audio tracks on device
-    When User open audio browser screen
-    And User select other "<sorting>" and "<order>"
-    And Relaunch browser screen
-    Then Tracks listing should shown sorted by "<sorting>" in "<order>" order
+    Given user opened tracks browser
+    When he select other "<sorting>" and "<order>"
+    And leave app
+    Then tracks listing should shown sorted by "<sorting>" in "<order>" order
     Examples:
       | sorting     | order      |
       | date        | ascending  |
@@ -56,16 +51,15 @@ Feature: Users device tracks browser
 
   @track-detail
   Scenario: Track detail info shown
-    Given User has public audio tracks on device
-    When User open audio browser screen
-    And User select to view track detail of first track
-    Then App should show track detail for first track
+    Given user open audio browser screen
+    When user select to view track detail of first track
+    Then app should show track detail for first track
 
   #Rule: Playing selected audio playlist
 
   @play-selected
   Scenario: Play selected track
-    Given User has public audio tracks on device
-    When User open device tracks browser screen
-    And User select first track
-    Then App player should play first track as part of all tracks play queue
+    Given user has public audio tracks on device
+    When user open device tracks browser screen
+    And user select first track
+    Then app player should play first track as part of all tracks play queue

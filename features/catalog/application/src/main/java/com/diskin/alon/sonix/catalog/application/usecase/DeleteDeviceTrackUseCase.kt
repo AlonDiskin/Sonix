@@ -11,9 +11,9 @@ import javax.inject.Inject
  */
 class DeleteDeviceTrackUseCase @Inject constructor(
     private val trackRepository: AudioTrackRepository
-) : UseCase<Int, Single<AppResult<Unit>>> {
+) : UseCase<Long, Single<AppResult<Unit>>> {
 
-    override fun execute(param: Int): Single<AppResult<Unit>> {
+    override fun execute(param: Long): Single<AppResult<Unit>> {
         return trackRepository.delete(param)
     }
 }

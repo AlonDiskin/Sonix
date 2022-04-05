@@ -86,7 +86,7 @@ dependencies {
     // Local testing
     testImplementation project(':features:common:unitTesting')
     testImplementation project(':features:common:uiTesting')
-    testImplementation "org.robolectric:robolectric:$robolectric_version"
+    testImplementation "org.robolectric:robolectric:4.7.3"
     kaptTest "androidx.databinding:databinding-compiler:7.0.3"
     testImplementation "androidx.navigation:navigation-testing:$nav_component_version"
 }

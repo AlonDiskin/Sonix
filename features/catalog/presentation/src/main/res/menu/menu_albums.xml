@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_sort"
+        android:title="@string/title_sort_albums_menu"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single" android:id="@+id/sorting">
+                <item
+                    android:id="@+id/action_sort_by_album_name"
+                    android:title="@string/title_action_sort_album_name" />
+                <item
+                    android:id="@+id/action_sort_by_artist_name"
+                    android:title="@string/title_action_sort_artist_name"/>
+            </group>
+            <group android:checkableBehavior="single" android:id="@+id/ordering">
+                <item
+                    android:id="@+id/action_order_desc"
+                    android:title="@string/title_action_sort_descending" />
+                <item
+                    android:id="@+id/action_order_asc"
+                    android:title="@string/title_action_sort_ascending"/>
+            </group>
+        </menu>
+    </item>
+
+</menu>

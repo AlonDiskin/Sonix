@@ -1,5 +1,6 @@
 package com.diskin.alon.sonix.catalog.featuretesting.scenario.track_browser
 
+import android.content.ContentResolver
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.databinding.ViewDataBinding
 import androidx.test.filters.MediumTest
@@ -29,7 +30,7 @@ import javax.inject.Inject
 @UninstallModules(CatalogEventsModule::class)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @LooperMode(LooperMode.Mode.PAUSED)
-@Config(application = HiltTestApplication::class,sdk = [29])
+@Config(application = HiltTestApplication::class,instrumentedPackages = ["androidx.loader.content"])
 @MediumTest
 class PlayAudioSelectionStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(scenario) {
 
@@ -66,6 +67,9 @@ class PlayAudioSelectionStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(
     @Inject
     lateinit var selectedPlaylistPublisher: SelectedPlaylistPublisher
 
+    @Inject
+    lateinit var contentResolver: ContentResolver
+
     @Test
     fun test() {
         // Disable data binding Choreographer
@@ -74,6 +78,6 @@ class PlayAudioSelectionStepsRunner(scenario: ScenarioConfig) : GreenCoffeeTest(
         // Inject test dependencies
         hiltRule.inject()
 
-        start(PlayAudioSelectionSteps(selectedPlaylistPublisher))
+        start(PlayAudioSelectionSteps(selectedPlaylistPublisher,contentResolver))
     }
 }

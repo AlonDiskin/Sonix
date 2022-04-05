@@ -70,7 +70,7 @@ class AudioTracksFragment : Fragment() {
         menu.findItem(R.id.action_sort).isEnabled = false
 
         // Observe view model sorting state
-        viewModel.sorting.observe(viewLifecycleOwner, {
+        viewModel.sorting.observe(viewLifecycleOwner) {
             it?.let { sorting ->
                 menu.findItem(R.id.action_sort).isEnabled = true
 
@@ -80,12 +80,14 @@ class AudioTracksFragment : Fragment() {
                     menu.findItem(R.id.action_order_desc).isChecked = true
                 }
 
-                when(sorting) {
-                    is AudioTracksSorting.DateAdded -> menu.findItem(R.id.action_sort_by_date).isChecked = true
-                    is AudioTracksSorting.ArtistName -> menu.findItem(R.id.action_sort_by_artist_name).isChecked = true
+                when (sorting) {
+                    is AudioTracksSorting.DateAdded -> menu.findItem(R.id.action_sort_by_date).isChecked =
+                        true
+                    is AudioTracksSorting.ArtistName -> menu.findItem(R.id.action_sort_by_artist_name).isChecked =
+                        true
                 }
             }
-        })
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -180,12 +182,12 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
-    private fun showTrackDetail(trackId: Int) {
+    private fun showTrackDetail(trackId: Long) {
         val bundle = bundleOf(getString(R.string.arg_track_id) to trackId)
         findNavController().navigate(R.id.audioTrackDetailDialog, bundle)
     }
 
-    private fun shareTrack(trackId: Int) {
+    private fun shareTrack(trackId: Long) {
         activity?.let {
             val audioCollection =     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Audio.Media.getContentUri(
@@ -204,7 +206,7 @@ class AudioTracksFragment : Fragment() {
         }
     }
 
-    private fun deleteTrack(trackId: Int) {
+    private fun deleteTrack(trackId: Long) {
         MaterialAlertDialogBuilder(requireActivity())
             .setMessage(getString(R.string.message_dialog_delete_track))
             .setTitle(getString(R.string.title_dialog_delete_track))

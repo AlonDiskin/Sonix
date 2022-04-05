@@ -15,7 +15,7 @@ class PlaylistSenderImpl @Inject constructor(
     private val playlistPublisher: SelectedPlaylistPublisher
 ) : PlaylistSender {
 
-    override fun send(startIndex: Int, ids: List<Int>): Single<AppResult<Unit>> {
+    override fun send(startIndex: Int, ids: List<Long>): Single<AppResult<Unit>> {
         return Single.create<AppResult<Unit>> { emitter ->
             val audioContentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 MediaStore.Audio.Media.getContentUri(

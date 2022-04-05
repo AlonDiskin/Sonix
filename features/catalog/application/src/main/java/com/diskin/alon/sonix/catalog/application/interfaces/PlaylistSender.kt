@@ -5,5 +5,5 @@ import io.reactivex.Single
 
 interface PlaylistSender {
 
-    fun send(startIndex: Int, ids: List<Int>): Single<AppResult<Unit>>
+    fun send(startIndex: Int, ids: List<Long>): Single<AppResult<Unit>>
 }

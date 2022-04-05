@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="kotlin.jvm.functions.Function1"/>
+        <import type="kotlin.jvm.functions.Function2"/>
+        <import type="android.view.View"/>
+        <import type="kotlin.Unit"/>
+        <import type="com.diskin.alon.sonix.catalog.presentation.model.UiAlbumTrack"/>
+
+        <variable
+            name="track"
+            type="UiAlbumTrack" />
+        <variable
+            name="trackClickListener"
+            type="Function1&lt;UiAlbumTrack,Unit>" />
+        <variable
+            name="optionsClickListener"
+            type="Function2&lt;UiAlbumTrack,View,Unit>" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:onClick="@{() -> trackClickListener.invoke(track)}">
+
+        <ImageButton
+            android:id="@+id/track_menu"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:onClick="@{(v) -> optionsClickListener.invoke(track,v)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_outline_more_vert_24" />
+
+        <TextView
+            android:id="@+id/track_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/horizontal_margin"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{track.name}"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:layout_constraintBottom_toBottomOf="@+id/track_menu"
+            app:layout_constraintEnd_toStartOf="@+id/track_menu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/track_menu"
+            tools:text="Yesterday" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="#12000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/track_menu"
+            app:layout_constraintStart_toStartOf="@id/track_name"
+            app:layout_constraintTop_toBottomOf="@id/track_name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

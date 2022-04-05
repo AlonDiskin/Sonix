@@ -10,7 +10,7 @@ java {
 
 dependencies {
     // Project modules
-    implementation project(':features:catalog:core')
+    implementation project(':features:catalog:domain')
     api project(':features:common:application')
 
     // Javax

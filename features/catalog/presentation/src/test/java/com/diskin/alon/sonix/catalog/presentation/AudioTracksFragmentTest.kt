@@ -55,7 +55,7 @@ import org.robolectric.shadows.ShadowToast
 @RunWith(AndroidJUnit4::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 @SmallTest
-@Config(sdk = [29])
+@Config(instrumentedPackages = ["androidx.loader.content"])
 class AudioTracksFragmentTest {
 
     // Test subject

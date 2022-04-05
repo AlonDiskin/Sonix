@@ -2,6 +2,7 @@ package com.diskin.alon.sonix.catalog.presentation
 
 import android.Manifest
 import android.content.Context
+import android.os.Looper
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +28,7 @@ import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.LooperMode
 import org.robolectric.shadows.ShadowAlertDialog
@@ -37,7 +39,7 @@ import org.robolectric.shadows.ShadowAlertDialog
 @RunWith(AndroidJUnit4::class)
 @LooperMode(LooperMode.Mode.PAUSED)
 @SmallTest
-@Config(sdk = [29])
+@Config(instrumentedPackages = ["androidx.loader.content"])
 class CatalogFragmentTest {
 
     // Test subject
@@ -79,7 +81,8 @@ class CatalogFragmentTest {
     fun setUp() {
         // Mock pager fragments instantiation
         mockkConstructor(CatalogFragmentFactory::class)
-        every { anyConstructed<CatalogFragmentFactory>().create(any()) } returns EmptyFragment()
+        every { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.TRACKS) } returns EmptyFragment()
+        every { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.ALBUMS) } returns EmptyFragment()
 
         // Launch fragment under test
         scenario = launchFragmentInContainer (
@@ -90,6 +93,8 @@ class CatalogFragmentTest {
                 }
             }
         )
+
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
 
         // Set test nav controller
         scenario.onFragment {

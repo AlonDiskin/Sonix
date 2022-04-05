@@ -1,12 +1,12 @@
 package com.diskin.alon.sonix.catalog.application
 
 import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
-import com.diskin.alon.sonix.catalog.application.interfaces.SortingStore
+import com.diskin.alon.sonix.catalog.application.interfaces.TracksSortingStore
 import com.diskin.alon.sonix.catalog.application.model.AudioTrackDto
 import com.diskin.alon.sonix.catalog.application.model.AudioTracksSorting
 import com.diskin.alon.sonix.catalog.application.usecase.GetSortedDeviceTracksUseCase
 import com.diskin.alon.sonix.catalog.application.util.TracksMapper
-import com.diskin.alon.sonix.catalog.core.AudioTrack
+import com.diskin.alon.sonix.catalog.domain.AudioTrack
 import com.diskin.alon.sonix.common.application.AppResult
 import io.mockk.every
 import io.mockk.mockk
@@ -23,7 +23,7 @@ class GetSortedDeviceTracksUseCaseTest {
 
     // Collaborators
     private val tracksRepository: AudioTrackRepository = mockk()
-    private val sortingStore: SortingStore = mockk()
+    private val sortingStore: TracksSortingStore = mockk()
     private val tracksMapper: TracksMapper = mockk()
 
     @Before
