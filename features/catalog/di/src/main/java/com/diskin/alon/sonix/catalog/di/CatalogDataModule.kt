@@ -1,13 +1,7 @@
 package com.diskin.alon.sonix.catalog.di
 
-import com.diskin.alon.sonix.catalog.application.interfaces.AlbumRepository
-import com.diskin.alon.sonix.catalog.application.interfaces.AlbumsSortingStore
-import com.diskin.alon.sonix.catalog.application.interfaces.AudioTrackRepository
-import com.diskin.alon.sonix.catalog.application.interfaces.TracksSortingStore
-import com.diskin.alon.sonix.catalog.data.AlbumRepositoryImpl
-import com.diskin.alon.sonix.catalog.data.AlbumsSortingStoreImpl
-import com.diskin.alon.sonix.catalog.data.AudioTrackRepositoryImpl
-import com.diskin.alon.sonix.catalog.data.TracksSortingStoreImpl
+import com.diskin.alon.sonix.catalog.application.interfaces.*
+import com.diskin.alon.sonix.catalog.data.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,4 +27,12 @@ abstract class CatalogDataModule {
     @Singleton
     @Binds
     abstract fun bindAlbumSortingStore(store: AlbumsSortingStoreImpl): AlbumsSortingStore
+
+    @Singleton
+    @Binds
+    abstract fun bindArtistRepository(repo: ArtistRepositoryImpl): ArtistRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindArtistSortingStore(store: ArtistsSortingStoreImpl): ArtistsSortingStore
 }

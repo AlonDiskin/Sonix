@@ -31,6 +31,12 @@ fun createUiTrackDetail() = UiAudioTrackDetail(
     "track_format"
 )
 
+fun createUiArtists(): List<UiArtist> = listOf(
+    UiArtist(1,"album_1_name",Uri.EMPTY),
+    UiArtist(2,"album_2_name", Uri.EMPTY),
+    UiArtist(3,"album_3_name",Uri.EMPTY)
+)
+
 fun createUiAlbums(): List<UiAlbum> = listOf(
     UiAlbum(1,"album_1_name","album_1_artist", Uri.EMPTY),
     UiAlbum(2,"album_2_name","album_2_artist", Uri.EMPTY),

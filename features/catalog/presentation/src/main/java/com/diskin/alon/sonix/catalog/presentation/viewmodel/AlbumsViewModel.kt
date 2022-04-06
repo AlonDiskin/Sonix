@@ -57,6 +57,11 @@ class AlbumsViewModel @Inject constructor(
             }
 
             is AppResult.Loading -> _update.value = ViewUpdateState.Loading
+
+            is AppResult.Error -> {
+                _update.value = ViewUpdateState.EndLoading
+                // TODO update view error
+            }
         }
     }
 

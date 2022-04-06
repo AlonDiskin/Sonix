@@ -15,6 +15,9 @@ import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.diskin.alon.sonix.catalog.presentation.controller.CatalogFragment
@@ -83,6 +86,7 @@ class CatalogFragmentTest {
         mockkConstructor(CatalogFragmentFactory::class)
         every { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.TRACKS) } returns EmptyFragment()
         every { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.ALBUMS) } returns EmptyFragment()
+        every { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.ARTISTS) } returns EmptyFragment()
 
         // Launch fragment under test
         scenario = launchFragmentInContainer (
@@ -144,6 +148,44 @@ class CatalogFragmentTest {
             val tabs = it.view!!.findViewById<TabLayout>(R.id.tab_layout)
 
             assertThat(tabs.getTabAt(0)!!.text).isEqualTo(it.getString(R.string.tab_title_tracks))
+        }
+    }
+
+    @Test
+    fun showAlbumsFragment_WhenAlbumsTabSelected() {
+        // Given
+
+        // When
+        onView(withText(R.string.tab_title_albums))
+            .perform(click())
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        verify { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.ALBUMS) }
+        scenario.onFragment {
+            val tabs = it.view!!.findViewById<TabLayout>(R.id.tab_layout)
+
+            assertThat(tabs.getTabAt(1)!!.text).isEqualTo(it.getString(R.string.tab_title_albums))
+        }
+    }
+
+    @Test
+    fun showArtistsFragment_WhenArtistsTabSelected() {
+        // Given
+
+        // When
+        scenario.onFragment {
+            val tabs = it.view!!.findViewById<TabLayout>(R.id.tab_layout)
+            tabs.getTabAt(3)!!.select()
+        }
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        // Then
+        verify { anyConstructed<CatalogFragmentFactory>().create(CatalogFragmentFactory.Type.ARTISTS) }
+        scenario.onFragment {
+            val tabs = it.view!!.findViewById<TabLayout>(R.id.tab_layout)
+
+            assertThat(tabs.getTabAt(3)!!.text).isEqualTo(it.getString(R.string.tab_title_artists))
         }
     }
 }

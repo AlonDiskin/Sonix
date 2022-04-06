@@ -100,11 +100,11 @@ class CatalogFragment(
             }
         }.attach()
 
-//        layout.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-//            override fun onPageSelected(position: Int) {
-//                invalidateFragmentMenus(position)
-//            }
-//        })
+        layout.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                invalidateFragmentMenus(position)
+            }
+        })
     }
 
     private fun invalidateFragmentMenus(position: Int) {
@@ -148,6 +148,7 @@ class CatalogFragment(
             return when(position) {
                 0 -> factory.create(CatalogFragmentFactory.Type.TRACKS)
                 1 -> factory.create(CatalogFragmentFactory.Type.ALBUMS)
+                3 -> factory.create(CatalogFragmentFactory.Type.ARTISTS)
                 else -> EmptyFragment()
             }
         }
